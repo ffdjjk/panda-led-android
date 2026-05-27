@@ -290,6 +290,14 @@ fun FullScreenContent(
 private fun rememberLandscapeFlipRotation(): Pair<Float, Float> {
     val context = LocalContext.current
     var rotation by remember { mutableFloatStateOf(0f) }
+    var sensorReady by remember { mutableStateOf(false) }
+
+    // Wait 500ms for sensor readings to stabilize before applying rotation
+    LaunchedEffect(Unit) {
+        delay(500)
+        sensorReady = true
+        Log.d("PandaFlow", "[rememberLandscapeFlipRotation] sensorReady=true after 500ms")
+    }
 
     DisposableEffect(context) {
         val display = (context as android.app.Activity).windowManager.defaultDisplay
@@ -300,6 +308,7 @@ private fun rememberLandscapeFlipRotation(): Pair<Float, Float> {
         val listener = if (sensor != null) {
             val l = object : android.hardware.SensorEventListener {
                 override fun onSensorChanged(event: android.hardware.SensorEvent) {
+                    if (!sensorReady) return
                     val x = event.values[0]
                     val displayRot = display.rotation
                     val newRotation = when (displayRot) {
