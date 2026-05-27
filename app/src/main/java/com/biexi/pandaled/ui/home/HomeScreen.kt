@@ -22,11 +22,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.PlayerView
+import kotlinx.coroutines.delay
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
@@ -123,9 +126,34 @@ fun HomeScreen(
             TopAppBar(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Image(
-                            painter = painterResource(R.mipmap.ic_launcher_foreground),
-                            contentDescription = stringResource(R.string.app_name),
+                        // Video logo - loops every 5 seconds
+                        val ctx = LocalContext.current
+                        val exoPlayer = remember {
+                            ExoPlayer.Builder(ctx).build().apply {
+                                val uri = android.net.Uri.parse("android.resource://${ctx.packageName}/${R.raw.logo}")
+                                setMediaItem(MediaItem.fromUri(uri))
+                                volume = 0f
+                                playWhenReady = true
+                                prepare()
+                            }
+                        }
+                        LaunchedEffect(Unit) {
+                            while (true) {
+                                exoPlayer.seekTo(0)
+                                exoPlayer.playWhenReady = true
+                                delay(5_000)
+                            }
+                        }
+                        DisposableEffect(Unit) {
+                            onDispose { exoPlayer.release() }
+                        }
+                        AndroidView(
+                            factory = { viewCtx ->
+                                PlayerView(viewCtx).apply {
+                                    player = exoPlayer
+                                    useController = false
+                                }
+                            },
                             modifier = Modifier
                                 .size(40.dp)
                                 .clip(RoundedCornerShape(8.dp))
