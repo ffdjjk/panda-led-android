@@ -26,10 +26,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.biexi.pandaled.data.model.*
 import kotlinx.coroutines.delay
-import android.util.Log
 import com.biexi.pandaled.ui.detail.components.*
-
-private const val TAG = "PandaFlow"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -386,7 +383,6 @@ fun DetailScreen(
             confirmButton = {
                 Button(
                     onClick = {
-                        Log.d(TAG, "[DetailScreen] 订阅按钮点击 → 关闭dialog, 调用launchFullScreen")
                             showSubscribeDialog = false
                         viewModel.launchFullScreen(context)
                     },
@@ -406,26 +402,21 @@ fun DetailScreen(
             dismissButton = {
                 TextButton(onClick = {
                     if (adLoadingInProgress) return@TextButton
-                    Log.d(TAG, "[DetailScreen] 直接开始按钮点击 → 进入广告流程")
                     adLoadingInProgress = true
                     showSubscribeDialog = false
                     showAdLoading = true
-                    Log.d(TAG, "[DetailScreen] showAdLoading=true, 调用AdManager.loadAndShow")
                     com.biexi.pandaled.util.AdManager.loadAndShow(
                         context as android.app.Activity,
                         onDismissed = {
                             // 立即关闭loading遮罩，避免广告关闭后短暂闪现
                             showAdLoading = false
-                            Log.d(TAG, "[DetailScreen] AdManager.onDismissed → 调用launchFullScreen")
                             viewModel.launchFullScreen(context, onComplete = {
-                                Log.d(TAG, "[DetailScreen] launchFullScreen.onComplete → 清理状态")
                                 adLoadingInProgress = false
                                 activity.window.navigationBarColor = prevNavColor
                                 activity.window.statusBarColor = prevStatusColor
                             })
                         },
                         onNetworkError = {
-                            Log.d(TAG, "[DetailScreen] AdManager.onNetworkError → 显示网络错误")
                             adLoadingInProgress = false
                             showAdLoading = false
                             activity.window.navigationBarColor = prevNavColor

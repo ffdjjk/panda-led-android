@@ -3,7 +3,6 @@ package com.biexi.pandaled.ui.detail
 import android.content.Context
 import android.content.Intent
 import android.util.Base64
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.biexi.pandaled.PandaLedApp
@@ -287,24 +286,14 @@ class DetailViewModel : ViewModel() {
     // ─── Full screen ─────────────────────────────────────
 
     fun launchFullScreen(context: Context, onComplete: () -> Unit = {}) {
-        Log.d("PandaFlow", "[DetailViewModel] launchFullScreen 被调用")
-        val index = currentIndex ?: run {
-            Log.w("PandaFlow", "[DetailViewModel] launchFullScreen → currentIndex为null, 取消")
-            onComplete(); return
-        }
-        val project = currentProject ?: run {
-            Log.w("PandaFlow", "[DetailViewModel] launchFullScreen → currentProject为null, 取消")
-            onComplete(); return
-        }
+        val index = currentIndex ?: run { onComplete(); return }
+        val project = currentProject ?: run { onComplete(); return }
         viewModelScope.launch {
-            Log.d("PandaFlow", "[DetailViewModel] 开始保存项目...")
             repository.updateProject(index, project)
-            Log.d("PandaFlow", "[DetailViewModel] 保存完成, 启动FullScreenActivity, projectId=${index.id}")
             val intent = Intent(context, FullScreenActivity::class.java).apply {
                 putExtra(FullScreenActivity.EXTRA_PROJECT_ID, index.id)
             }
             context.startActivity(intent)
-            Log.d("PandaFlow", "[DetailViewModel] startActivity 已调用")
             onComplete()
         }
     }

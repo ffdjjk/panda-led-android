@@ -1,7 +1,6 @@
 package com.biexi.pandaled.ui.player
 
 import android.os.Bundle
-import android.util.Log
 import android.view.OrientationEventListener
 import android.view.View
 import android.view.WindowManager
@@ -42,7 +41,6 @@ class FullScreenActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d("PandaFlow", "[FullScreenActivity] onCreate, savedInstanceState=${savedInstanceState != null}")
 
         hideSystemUi()
 
@@ -55,29 +53,13 @@ class FullScreenActivity : AppCompatActivity() {
             PandaLedTheme {
                 FullScreenPlayer(
                     projectId = projectId,
-                    onExit = {
-                        Log.d("PandaFlow", "[FullScreenActivity] onExit → finish()")
-                        finish()
-                    }
+                    onExit = { finish() }
                 )
             }
         }
     }
 
-    override fun onDestroy() {
-        Log.d("PandaFlow", "[FullScreenActivity] onDestroy")
-        super.onDestroy()
-    }
 
-    override fun onPause() {
-        Log.d("PandaFlow", "[FullScreenActivity] onPause")
-        super.onPause()
-    }
-
-    override fun onResume() {
-        Log.d("PandaFlow", "[FullScreenActivity] onResume")
-        super.onResume()
-    }
 
     private fun hideSystemUi() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -101,24 +83,16 @@ fun FullScreenPlayer(
     var project by remember { mutableStateOf<Project?>(null) }
 
     LaunchedEffect(projectId) {
-        Log.d("PandaFlow", "[FullScreenPlayer] LaunchedEffect, projectId=$projectId, 开始加载...")
         val index = repository.getProjectIndex(projectId)
         if (index != null) {
             project = repository.loadProject(index.jsonFileName)
-            if (project == null) {
-                Log.w("PandaFlow", "[FullScreenPlayer] 项目加载失败, onExit()")
-                onExit()
-            } else {
-                Log.d("PandaFlow", "[FullScreenPlayer] 项目加载成功: ${project!!.name}, scenes=${project!!.scenes.size}")
-            }
+            if (project == null) onExit()
         } else {
-            Log.w("PandaFlow", "[FullScreenPlayer] projectIndex为null, onExit()")
             onExit()
         }
     }
 
     if (project == null) {
-        Log.d("PandaFlow", "[FullScreenPlayer] project==null, 显示加载中...")
         Box(
             modifier = Modifier.fillMaxSize().background(Color.Black),
             contentAlignment = Alignment.Center
@@ -156,16 +130,6 @@ fun FullScreenContent(
     }
     var isBeforeStartTime by remember(project) { mutableStateOf(initialShouldShowIdle) }
     var isFinished by remember { mutableStateOf(false) }
-
-    // Log state transitions
-    LaunchedEffect(isFinished) {
-        Log.d("PandaFlow", "[FullScreenContent] isFinished=$isFinished")
-    }
-    LaunchedEffect(currentIndex) {
-        Log.d("PandaFlow", "[FullScreenContent] currentIndex=$currentIndex, isBeforeStartTime=$isBeforeStartTime")
-    }
-
-    Log.d("PandaFlow", "[FullScreenContent] 渲染, currentIndex=$currentIndex, isBeforeStartTime=$isBeforeStartTime, isFinished=$isFinished")
 
     LaunchedEffect(project) {
         val startMs = parseProjectStartMs(project.startTime)
@@ -226,7 +190,6 @@ fun FullScreenContent(
     }
 
     val (contentRotation, contentAlpha) = rememberLandscapeFlipRotation()
-    Log.d("PandaFlow", "[FullScreenContent] alpha=$contentAlpha, rotation=$contentRotation")
 
     Box(
         modifier = Modifier
@@ -296,7 +259,6 @@ private fun rememberLandscapeFlipRotation(): Pair<Float, Float> {
     LaunchedEffect(Unit) {
         delay(500)
         sensorReady = true
-        Log.d("PandaFlow", "[rememberLandscapeFlipRotation] sensorReady=true after 500ms")
     }
 
     DisposableEffect(context) {
@@ -318,7 +280,6 @@ private fun rememberLandscapeFlipRotation(): Pair<Float, Float> {
                     }
                     if (newRotation != rotation) {
                         rotation = newRotation
-                        Log.d("PandaFlow", "[rememberLandscapeFlipRotation] rotation changed to $rotation")
                     }
                 }
 
