@@ -1,0 +1,110 @@
+{
+  "version": "1.0.0",
+  "name": "新项目",
+  "startTime": "", // 项目开始时间，格式 "2026-12-31 23:59:59"，空字符串为立刻开始
+
+  // ═══ 等待场景（未到开始时间 / 全部播完） ═══
+  "idleScene": {
+    "type": "countdown", // "none" | "clock" | "countdown" | "image"
+    // "none"   → 黑屏
+    // "clock"  → 实时时钟
+    // "countdown" → 倒计时（目标时间 = startTime）
+    // "image"  → 静态图片
+    "content": {
+      "source": "", // 仅 type="image" 时使用：图片路径
+      "style": {
+        "format": "{hours}:{minutes}:{seconds}", // 时钟/倒计时格式
+        "fontFamily": "sans-serif",
+        "size": 40,      // 字号 1–200（视口比例）
+        "color": "#FFFFFF"
+      }
+    }
+  },
+
+  // ═══ 普通场景列表 ═══
+  "scenes": [
+    {
+      "name": "文字场景",
+      "type": "text",     // "text" | "image" | "video"
+
+      "duration": 5,      // 播放时长（秒）1–300
+      "playMode": "loop", // "loop" | "once"
+      // "loop" → 循环参与播放列表
+      // "once" → 播一次后从列表移除
+
+      // ── 内容 ──
+      "content": {
+        "source": "很高兴见到你!",  // text=文字内容, image/video=文件路径
+        "style": {               // 仅 text
+          "fontFamily": "sans-serif",
+          "size": 40,            // 字号 1–200
+          "color": null          // 不使用；颜色由下面 color 控制
+        },
+        "color": {
+          "type": "static",       // "static" | "toggle" | "gradient"
+          // static  → 纯色
+          "value": "#FFFFFF",
+          // toggle  → 交替闪烁
+          // "type": "toggle",
+          // "from": "#FF0000",
+          // "to": "#0000FF",
+          // "frequency": 5,      // 交替频率 0-10, 0=停止
+          // gradient → 渐变
+          // "type": "gradient",
+          // "from": "#FF0000",
+          // "to": "#0000FF",
+          // "duration": 1160     // 渐变周期 ms
+        },
+        "transform": {
+          "mirror": false         // 镜像翻转
+        },
+        "motion": {               // 仅 text：滚动
+          "scroll": {
+            "direction": "leftToRight", // "leftToRight" | "rightToLeft" | "topToBottom" | "bottomToTop"
+            "speed": 5            // 1–10，1=最慢，10=最快
+          }
+        },
+        "animation": {
+          "blink": {
+            "frequency": 0        // 闪烁 0–10，0=不闪烁，1=最慢，10=最快
+          }
+        }
+      },
+
+      // ── 进场转场 ──
+      "transition": {
+        "enter": {
+          "type": "none",         // "none" | "fade" | "slideLeft" | "slideRight" | "slideUp" | "slideDown" | "zoom"
+          "duration": 0           // 秒，可为小数如 0.5
+        }
+      },
+
+      // ── 外观 ──
+      "appearance": {
+        "overlay": [
+          {
+            "type": "dotMask",    // "dotMask" | 可扩展
+            "size": 1,            // 点阵大小 1–10（视口比例）
+            "style": "round",     // "round" | "square" | "heart"
+            "zIndex": 0
+          }
+        ],
+        "backgroundColor": {
+          "type": "static",       // "static" | "toggle" | "gradient"
+          // static →
+          "value": "#000000",
+          // toggle →
+          // "type": "toggle",
+          // "from": "#FF0000",
+          // "to": "#0000FF",
+          // "frequency": 5,
+          // gradient →
+          // "type": "gradient",
+          // "from": "#FF0000",
+          // "to": "#0000FF",
+          // "duration": 1160
+        }
+      }
+    }
+  ]
+}

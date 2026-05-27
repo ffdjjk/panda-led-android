@@ -1,0 +1,13 @@
+# 忽略 Android 编译和打包产物
+**/build/
+**/app/release/
+
+# 严防死守证书泄露
+*.jks
+*.keystore
+*.p12
+
+# 忽略本地特有的配置文件
+local.properties
+.gradle/
+.idea/

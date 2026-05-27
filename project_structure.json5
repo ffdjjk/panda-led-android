@@ -1,0 +1,198 @@
+{
+  version: "1.0.0",
+  name: "第一个LED项目",
+  startTime: "2026-05-09 11:00:00", // 开始执行时间
+  idleScene: {
+    type: "none", // 模式切换：none（黑屏）, clock（时钟模板）, countdown（倒计时模板）, image（图片）
+    content: {},
+  },
+  // idleScene: {
+  //   type: "clock",
+  //   content: {
+  //     style: {
+  //       format: "{hours}:{minutes}:{seconds}", // 时钟显示格式，支持 {hours}（小时）, {minutes}（分钟）, {seconds}（秒）
+  //       fontFamily: "sans-serif",
+  //       size: 12,
+  //       color: "#FFFFFF",
+  //     },
+  //   },
+  // },
+  // idleScene: {
+  //   type: "countdown",
+  //   content: {
+  //     style: {
+  //       format: "{hours}:{minutes}:{seconds}", // 倒计时模板, 如果只写了 "...{seconds}秒" 则只显示剩余秒数, 如6000秒, 如果写了 "...{minutes}分{seconds}秒" 则显示剩余分钟和秒数, 如80分15秒, 以此类推, 默认为 "{hours}:{minutes}:{seconds}"
+  //       fontFamily: "sans-serif",
+  //       size: 12,
+  //       color: "#FFFFFF",
+  //     },
+  //   },
+  // },
+  // idleScene: {
+  //   type: "image",
+  //   content: {
+  //     source: "localpath/to/idle_bg.jpg", // 闲置时显示的公司Logo或垫片图
+  //   },
+  // },
+  scenes: [
+    {
+      name: "文字场景",
+      type: "text",
+      duration: 5000,
+      playMode: "once",
+      content: {
+        source: "Hello World!",
+        style: {
+          size: 10,
+          fontFamily: "sans-serif",
+        },
+        // 颜色 static模式示例：
+        color: {
+          type: "static",
+          value: "#FFFFFF",
+        },
+        // 颜色 toggle模式示例：
+        // color: {
+        //   type: "toggle",
+        //   from: "#FFFFFF",
+        //   to: "#FF0000",
+        //   frequency: 5,
+        // },
+        // 颜色 gradient模式示例：
+        // color: {
+        //   type: "gradient",
+        //   from: "#FFFFFF",
+        //   to: "#FF0000",
+        //   duration: 5000,
+        // },
+        transform: {
+          mirror: false,
+        },
+        motion: {
+          scroll: {
+            direction: "leftToRight",
+            speed: 5,
+          },
+        },
+        animation: {
+          blink: {
+            frequency: 5,
+          },
+        },
+      },
+      transition: {
+        enter: {
+          type: "none", // none（无动画）, text场景只有none（无动画）
+          duration: 0, // 耗时 0 毫秒完成这个动作
+        },
+      },
+      appearance: {
+        overlay: [
+          {
+            type: "dotMask",
+            size: 5,
+            style: "round",
+            zIndex: 0,
+          },
+        ],
+        // backgroundColor static模式示例：
+        backgroundColor: {
+          type: "static",
+          value: "#000000",
+        },
+        // backgroundColor toggle模式示例：
+        // backgroundColor: {
+        //   type: "toggle",
+        //   from: "#000000",
+        //   to: "#FFFFFF",
+        //   frequency: 5, // 交替频率 1-10
+        // },
+      },
+    },
+    {
+      name: "图片场景",
+      type: "image",
+      duration: 5000,
+      playMode: "once",
+      content: {
+        source: "localpath/to/image.jpg",
+        transform: {
+          mirror: false,
+        },
+        animation: {
+          blink: {
+            frequency: 5,
+          },
+        },
+      },
+      transition: {
+        enter: {
+          type: "slideInFromLeft", // none（无动画），fadeIn（淡入），slideInFromLeft（从左滑入），slideInFromRight（从右滑入），slideInFromTop（从上滑入），slideInFromBottom（从下滑入）
+          duration: 500, // 耗时 500 毫秒完成这个动作
+        },
+      },
+      appearance: {
+        overlay: [
+          {
+            type: "dotMask",
+            size: 5,
+            style: "round",
+            zIndex: 0,
+          },
+        ],
+        // backgroundColor static模式示例：
+        backgroundColor: {
+          type: "static",
+          value: "#000000",
+        },
+        // backgroundColor toggle模式示例：
+        // backgroundColor: {
+        //   type: "toggle",
+        //   from: "#000000",
+        //   to: "#FFFFFF",
+        //   frequency: 5, // 交替频率 1-10
+        // },
+      },
+    },
+    {
+      name: "视频场景",
+      type: "video",
+      duration: 5000,
+      playMode: "once",
+      content: {
+        source: "localpath/to/video.mp4",
+        transform: {
+          mirror: false,
+        },
+      },
+      transition: {
+        enter: {
+          type: "slideInFromLeft", // none（无动画），fadeIn（淡入），slideInFromLeft（从左滑入），slideInFromRight（从右滑入），slideInFromTop（从上滑入），slideInFromBottom（从下滑入）
+          duration: 500, // 耗时 500 毫秒完成这个动作
+        },
+      },
+      appearance: {
+        overlay: [
+          {
+            type: "dotMask",
+            size: 5,
+            style: "round",
+            zIndex: 0,
+          },
+        ],
+        // backgroundColor static模式示例：
+        backgroundColor: {
+          type: "static",
+          value: "#000000",
+        },
+        // backgroundColor toggle模式示例：
+        // backgroundColor: {
+        //   type: "toggle",
+        //   from: "#000000",
+        //   to: "#FFFFFF",
+        //   frequency: 5, // 交替频率 1-10
+        // },
+      },
+    },
+  ],
+}

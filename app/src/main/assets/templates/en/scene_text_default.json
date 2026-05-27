@@ -1,0 +1,39 @@
+{
+  "type": "text",
+  "duration": 5,
+  "playMode": "loop",
+  "content": {
+    "source": "Welcome to PandaLED\uD83D\uDC97!",
+    "style": {
+      "size": 40,
+      "fontFamily": "sans-serif"
+    },
+    "color": {
+      "type": "static",
+      "value": "#FFFFFF"
+    },
+    "transform": { "mirror": false },
+    "motion": {
+      "scroll": {
+        "direction": "leftToRight",
+        "speed": 5,
+        "continuous": false
+      }
+    },
+    "animation": {
+      "blink": { "frequency": 0 }
+    }
+  },
+  "transition": {
+    "enter": { "type": "none", "duration": 0 }
+  },
+  "appearance": {
+    "overlay": [
+      { "type": "dotMask", "size": 1, "style": "round", "zIndex": 0 }
+    ],
+    "backgroundColor": {
+      "type": "static",
+      "value": "#000000"
+    }
+  }
+}

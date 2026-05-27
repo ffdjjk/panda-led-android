@@ -1,0 +1,69 @@
+{
+  "version": "1.0.0",
+  "name": "新项目",
+  "startTime": "",
+  "idleScene": {
+    "type": "countdown",
+    "content": {
+      "style": {
+        "format": "{hours}:{minutes}:{seconds}",
+        "fontFamily": "sans-serif",
+        "size": 40,
+        "color": "#FFFFFF"
+      }
+    }
+  },
+  "scenes": [
+    {
+      "name": "欢迎场景",
+      "type": "text",
+      "duration": 5,
+      "playMode": "loop",
+      "content": {
+        "source": "欢迎使用PandaLED\uD83D\uDC97!",
+        "style": {
+          "size": 40,
+          "fontFamily": "sans-serif"
+        },
+        "color": {
+          "type": "static",
+          "value": "#FFFFFF"
+        },
+        "transform": {
+          "mirror": false
+        },
+        "motion": {
+          "scroll": {
+            "direction": "rightToLeft",
+            "speed": 5
+          }
+        },
+        "animation": {
+          "blink": {
+            "frequency": 0
+          }
+        }
+      },
+      "transition": {
+        "enter": {
+          "type": "none",
+          "duration": 0
+        }
+      },
+      "appearance": {
+        "overlay": [
+          {
+            "type": "dotMask",
+            "size": 1,
+            "style": "round",
+            "zIndex": 0
+          }
+        ],
+        "backgroundColor": {
+          "type": "static",
+          "value": "#000000"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,800 @@
+package com.pandaled.ui.detail.components
+
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.media3.ui.PlayerView
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.pandaled.data.model.*
+import kotlinx.coroutines.delay
+
+/**
+ * LED-style preview panel that renders the current scene / idleScene.
+ *
+ * - idleScene: shows clock/countdown text, image, or black screen
+ * - text scene: renders text with scroll/mirror/blink
+ * - image scene: loads local image
+ * - video scene: placeholder (video in ExoPlayer is complex; show play icon)
+ */
+@Composable
+fun PreviewPanel(
+    project: Project,
+    currentPreviewIndex: Int,
+    isPlaying: Boolean,
+    sceneName: String = "",
+    selectedTarget: com.pandaled.ui.detail.EditorTarget,
+    modifier: Modifier = Modifier
+) {
+    // Determine what to render
+    val isIdle = currentPreviewIndex == 0 && isPlaying
+    val sceneIdx = if (currentPreviewIndex > 0) currentPreviewIndex - 1 else null
+
+    // When not playing, show selected scene in preview
+    val displayScene: Scene? = if (!isPlaying) {
+        when (selectedTarget) {
+            is com.pandaled.ui.detail.EditorTarget.Scene ->
+                project.scenes.getOrNull(selectedTarget.index)
+            is com.pandaled.ui.detail.EditorTarget.IdleScene -> null
+        }
+    } else if (sceneIdx != null) {
+        project.scenes.getOrNull(sceneIdx)
+    } else null
+
+    val displayIdleScene = if (!isPlaying) {
+        when (selectedTarget) {
+            is com.pandaled.ui.detail.EditorTarget.IdleScene -> project.idleScene
+            else -> null
+        }
+    } else if (isIdle) project.idleScene else null
+
+    val totalCount = project.scenes.size + 1  // +1 for idleScene
+    val currentLabel = if (!isPlaying) {
+        when (selectedTarget) {
+            is com.pandaled.ui.detail.EditorTarget.IdleScene -> "1"
+            is com.pandaled.ui.detail.EditorTarget.Scene -> "${selectedTarget.index + 2}"
+        }
+    } else {
+        if (currentPreviewIndex == 0) "1" else "${currentPreviewIndex + 1}"
+    }
+
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(Color(0xFF111111))
+    ) {
+        // Render the scene/idle content
+        when {
+            displayIdleScene != null -> IdleSceneRenderer(displayIdleScene, project.startTime)
+            displayScene != null -> SceneRenderer(displayScene)
+            else -> {
+                // Black / empty
+                Box(modifier = Modifier.fillMaxSize().background(Color.Black))
+            }
+        }
+
+        // Scene name overlay (top-left)
+        if (sceneName.isNotBlank()) {
+            Text(
+                text = sceneName,
+                color = Color.White.copy(alpha = 0.85f),
+                fontSize = 11.sp,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(8.dp)
+                    .background(Color.Black.copy(alpha = 0.4f), RoundedCornerShape(4.dp))
+                    .padding(horizontal = 6.dp, vertical = 2.dp)
+            )
+        }
+
+        // Scene counter overlay (bottom-left)
+        Text(
+            text = "$currentLabel / ${project.scenes.size + 1}",
+            color = Color.White.copy(alpha = 0.7f),
+            fontSize = 12.sp,
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(8.dp)
+                .background(Color.Black.copy(alpha = 0.4f), RoundedCornerShape(4.dp))
+                .padding(horizontal = 6.dp, vertical = 2.dp)
+        )
+
+        // Play indicator
+        if (isPlaying) {
+            Text(
+                text = "▶ 播放中",
+                color = Color(0xFF4CAF50),
+                fontSize = 10.sp,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(8.dp)
+                    .background(Color.Black.copy(alpha = 0.4f), RoundedCornerShape(4.dp))
+                    .padding(horizontal = 6.dp, vertical = 2.dp)
+            )
+        }
+
+        // Transition effect overlay (if applicable)
+        val transitionType = displayScene?.transition?.enter?.type
+        val transitionDuration = displayScene?.transition?.enter?.duration ?: 0
+        val bgCfg = displayScene?.appearance?.backgroundColor
+        val transitionBgColor = when (bgCfg?.type) {
+            ColorType.STATIC -> bgCfg.value ?: "#000000"
+            ColorType.TOGGLE -> bgCfg.from ?: "#000000"
+            ColorType.GRADIENT -> bgCfg.from ?: "#000000"
+            else -> "#000000"
+        }
+        if (transitionType != null && transitionType != TransitionType.NONE && isPlaying) {
+            TransitionOverlay(
+                type = transitionType,
+                duration = transitionDuration,
+                bgColor = transitionBgColor
+            )
+        }
+    }
+}
+
+// ─── Idle Scene Renderer ─────────────────────────────────
+
+@Composable
+fun IdleSceneRenderer(idleScene: IdleScene, startTime: String) {
+    val style = idleScene.content?.style
+    when (idleScene.type) {
+        IdleSceneType.NONE -> {
+            Box(modifier = Modifier.fillMaxSize().background(Color.Black))
+        }
+        IdleSceneType.CLOCK -> {
+            ClockRenderer(
+                format = style?.format ?: "{hours}:{minutes}:{seconds}",
+                fontKey = style?.fontFamily,
+                size = style?.size ?: 12f,
+                colorHex = style?.color ?: "#FFFFFF"
+            )
+        }
+        IdleSceneType.COUNTDOWN -> {
+            CountdownRenderer(
+                format = style?.format ?: "{hours}:{minutes}:{seconds}",
+                startTime = startTime,
+                fontKey = style?.fontFamily,
+                size = style?.size ?: 12f,
+                colorHex = style?.color ?: "#FF8800"
+            )
+        }
+        IdleSceneType.IMAGE -> {
+            val source = idleScene.content?.source
+            if (!source.isNullOrBlank()) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(source)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = "闲置图片",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Fit
+                )
+            } else {
+                // Missing image placeholder
+                Box(
+                    modifier = Modifier.fillMaxSize().background(Color.DarkGray),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("图片待补充", color = Color.Red, fontSize = 14.sp)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ClockRenderer(format: String, fontKey: String? = null, size: Float = 12f, colorHex: String = "#FFFFFF") {
+    var timeText by remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            val now = java.util.Calendar.getInstance()
+            val h = now.get(java.util.Calendar.HOUR_OF_DAY)
+            val m = now.get(java.util.Calendar.MINUTE)
+            val s = now.get(java.util.Calendar.SECOND)
+            timeText = format
+                .replace("{hours}", h.toString().padStart(2, '0'))
+                .replace("{minutes}", m.toString().padStart(2, '0'))
+                .replace("{seconds}", s.toString().padStart(2, '0'))
+            delay(1000)
+        }
+    }
+
+    Canvas(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+        val paint = android.graphics.Paint().apply {
+            color = try { android.graphics.Color.parseColor(colorHex) } catch (_: Exception) { -1 }
+            textSize = size * density * 2.5f
+            textAlign = android.graphics.Paint.Align.CENTER
+            isAntiAlias = true
+            typeface = typefaceForKey(fontKey)
+        }
+        val y = center.y - (paint.descent() + paint.ascent()) / 2
+        drawContext.canvas.nativeCanvas.drawText(
+            timeText, center.x, y, paint
+        )
+    }
+}
+
+@Composable
+fun CountdownRenderer(format: String, startTime: String, fontKey: String? = null, size: Float = 12f, colorHex: String = "#FF8800") {
+    val sdf = remember { java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault()) }
+    val targetMs = remember(startTime) {
+        try { sdf.parse(startTime)?.time ?: 0L } catch (_: Exception) { 0L }
+    }
+
+    var remainingMs by remember { mutableStateOf(targetMs - System.currentTimeMillis()) }
+
+    LaunchedEffect(targetMs) {
+        while (true) {
+            remainingMs = targetMs - System.currentTimeMillis()
+            kotlinx.coroutines.delay(1000)
+        }
+    }
+
+    val displayText = if (remainingMs <= 0) {
+        format
+            .replace("{hours}", "00")
+            .replace("{minutes}", "00")
+            .replace("{seconds}", "00")
+    } else {
+        val totalSec = remainingMs / 1000
+        val h = totalSec / 3600
+        val m = (totalSec % 3600) / 60
+        val s = totalSec % 60
+        format
+            .replace("{hours}", h.toString().padStart(2, '0'))
+            .replace("{minutes}", m.toString().padStart(2, '0'))
+            .replace("{seconds}", s.toString().padStart(2, '0'))
+    }
+
+    Canvas(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+        val paint = android.graphics.Paint().apply {
+            color = try { android.graphics.Color.parseColor(colorHex) } catch (_: Exception) { -1 }
+            textSize = size * density * 2.5f
+            textAlign = android.graphics.Paint.Align.CENTER
+            isAntiAlias = true
+            typeface = typefaceForKey(fontKey)
+        }
+        val y = center.y - (paint.descent() + paint.ascent()) / 2
+        drawContext.canvas.nativeCanvas.drawText(
+            displayText, center.x, y, paint
+        )
+    }
+}
+
+// ─── Scene Renderer ──────────────────────────────────────
+
+@Composable
+fun SceneRenderer(scene: Scene) {
+    when (scene.type) {
+        SceneType.TEXT -> TextSceneRenderer(scene)
+        SceneType.IMAGE -> ImageSceneRenderer(scene)
+        SceneType.VIDEO -> VideoSceneRenderer(scene)
+    }
+}
+
+@Composable
+fun TextSceneRenderer(scene: Scene) {
+    val content = scene.content
+    val text = content.source ?: ""
+    val colorConfig = content.color
+    val motion = content.motion?.scroll
+    val animation = content.animation?.blink
+    val mirror = content.transform?.mirror ?: false
+
+    // Compute color based on config
+    val baseColor = when (colorConfig?.type) {
+        ColorType.STATIC -> parseColor(colorConfig.value)
+        ColorType.TOGGLE -> {
+            val intervalMs = frequencyToMs(colorConfig.frequency ?: 5)
+            var showFrom by remember { mutableStateOf(true) }
+            LaunchedEffect(colorConfig.frequency ?: 5) {
+                while (true) {
+                    delay(intervalMs)
+                    showFrom = !showFrom
+                }
+            }
+            if (showFrom) parseColor(colorConfig.from)
+            else parseColor(colorConfig.to ?: "#FF0000")
+        }
+        ColorType.GRADIENT -> {
+            val durMs = (colorConfig.duration ?: 5000).coerceAtLeast(100)
+            var gradient by remember { mutableStateOf(0f) }
+            LaunchedEffect(durMs) {
+                val step = 16L
+                val totalSteps = (durMs / step).coerceAtLeast(1).toInt()
+                var stepCount = 0
+                while (true) {
+                    kotlinx.coroutines.delay(step)
+                    stepCount++
+                    gradient = ((stepCount % totalSteps).toFloat() / totalSteps)
+                }
+            }
+            val from = parseColor(colorConfig.from)
+            val to = parseColor(colorConfig.to ?: "#FF0000")
+            Color(
+                red = from.red + (to.red - from.red) * gradient,
+                green = from.green + (to.green - from.green) * gradient,
+                blue = from.blue + (to.blue - from.blue) * gradient,
+                alpha = from.alpha + (to.alpha - from.alpha) * gradient
+            )
+        }
+        else -> Color.White
+    }
+
+    // Blink animation
+    val blinkAlpha = if (animation != null) {
+        val intervalMs = frequencyToMs(animation.frequency)
+        var showFrom by remember { mutableStateOf(true) }
+        LaunchedEffect(animation.frequency) {
+            while (true) {
+                delay(intervalMs)
+                showFrom = !showFrom
+            }
+        }
+        if (showFrom) 1f else 0f
+    } else 1f
+
+    // Scroll animation — timer-based fraction 0..1
+    val scrollFraction = if (motion != null) {
+        var fraction by remember { mutableStateOf(0f) }
+        val durationMs = (8000f / motion.speed.coerceAtLeast(0.5f)).toInt()
+        LaunchedEffect(durationMs) {
+            val step = 16L // ~60fps
+            val totalSteps = (durationMs / step.toInt()).coerceAtLeast(1)
+            var stepCount = 0
+            while (true) {
+                kotlinx.coroutines.delay(step)
+                stepCount++
+                fraction = (stepCount % totalSteps).toFloat() / totalSteps
+            }
+        }
+        fraction
+    } else 0f
+
+    val direction = motion?.direction
+
+    // Background color (supports STATIC, TOGGLE, GRADIENT)
+    val bgColorConfig = scene.appearance.backgroundColor
+    val bgColor = when (bgColorConfig?.type) {
+        ColorType.STATIC -> parseColor(bgColorConfig.value)
+        ColorType.TOGGLE -> {
+            val intervalMs = frequencyToMs(bgColorConfig.frequency ?: 5)
+            var showFrom by remember { mutableStateOf(true) }
+            LaunchedEffect(frequencyToMs(0) )  {
+                while (true) {
+                    delay(intervalMs)
+                    showFrom = !showFrom
+                }
+            }
+            if (showFrom) parseColor(bgColorConfig.from)
+            else parseColor(bgColorConfig.to ?: "#000000")
+        }
+        ColorType.GRADIENT -> {
+            val durMs = (bgColorConfig.duration ?: 3000).coerceAtLeast(100)
+            var gradient by remember { mutableStateOf(0f) }
+            LaunchedEffect(durMs) {
+                val step = 16L
+                val totalSteps = (durMs / step).coerceAtLeast(1).toInt()
+                var stepCount = 0
+                while (true) {
+                    kotlinx.coroutines.delay(step)
+                    stepCount++
+                    gradient = ((stepCount % totalSteps).toFloat() / totalSteps)
+                }
+            }
+            val from = parseColor(bgColorConfig.from)
+            val to = parseColor(bgColorConfig.to ?: "#FF0000")
+            Color(
+                red = from.red + (to.red - from.red) * gradient,
+                green = from.green + (to.green - from.green) * gradient,
+                blue = from.blue + (to.blue - from.blue) * gradient,
+                alpha = from.alpha + (to.alpha - from.alpha) * gradient
+            )
+        }
+        else -> Color.Black
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(bgColor)
+    ) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val isHorizontalScroll = direction == ScrollDirection.LEFT_TO_RIGHT ||
+                    direction == ScrollDirection.RIGHT_TO_LEFT
+            val paint = android.graphics.Paint().apply {
+                color = baseColor.toArgb()
+                textSize = (content.style?.size ?: 12f) * density * 2.5f
+                textAlign = if (isHorizontalScroll) android.graphics.Paint.Align.LEFT
+                            else android.graphics.Paint.Align.CENTER
+                isAntiAlias = true
+                alpha = (blinkAlpha * 255).toInt()
+                typeface = typefaceForKey(content.style?.fontFamily)
+            }
+
+            val textWidth = paint.measureText(text)
+            val x = when (direction) {
+                ScrollDirection.LEFT_TO_RIGHT ->
+                    -textWidth + (size.width + textWidth) * scrollFraction
+                ScrollDirection.RIGHT_TO_LEFT ->
+                    size.width - (size.width + textWidth) * scrollFraction
+                else -> center.x
+            }
+            val y = when (direction) {
+                ScrollDirection.TOP_TO_BOTTOM ->
+                    -paint.textSize + (size.height + paint.textSize) * scrollFraction
+                ScrollDirection.BOTTOM_TO_TOP ->
+                    size.height - (size.height + paint.textSize) * scrollFraction
+                else -> center.y - (paint.descent() + paint.ascent()) / 2
+            }
+
+            // Mirror: flip horizontally so it's readable when filmed through a camera
+            if (mirror) {
+                drawContext.canvas.nativeCanvas.save()
+                drawContext.canvas.nativeCanvas.scale(-1f, 1f, center.x, center.y)
+                drawContext.canvas.nativeCanvas.drawText(text, x, y, paint)
+                drawContext.canvas.nativeCanvas.restore()
+            } else {
+                drawContext.canvas.nativeCanvas.drawText(text, x, y, paint)
+            }
+        }
+
+        // Overlay dots
+        scene.appearance.overlay?.forEach { overlay ->
+            if (overlay.type == OverlayType.DOT_MASK) {
+                DotMaskOverlay(overlay)
+            }
+        }
+    }
+}
+
+@Composable
+fun ImageSceneRenderer(scene: Scene) {
+    val source = scene.content.source
+    val mirror = scene.content.transform?.mirror ?: false
+    val blinkAnim = scene.content.animation?.blink
+
+    val blinkAlpha = if (blinkAnim != null) {
+        val intervalMs = frequencyToMs(blinkAnim.frequency)
+        var showFrom by remember { mutableStateOf(true) }
+        LaunchedEffect(frequencyToMs(0) )  {
+            while (true) {
+                delay(intervalMs)
+                showFrom = !showFrom
+            }
+        }
+        if (showFrom) 1f else 0f
+    } else 1f
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(parseColor(scene.appearance.backgroundColor?.value))
+            .graphicsLayer(
+                alpha = blinkAlpha,
+                scaleX = if (mirror) -1f else 1f
+            )
+    ) {
+        if (!source.isNullOrBlank()) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(source)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = "场景图片",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+        } else {
+            Box(
+                modifier = Modifier.fillMaxSize().background(Color.DarkGray),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("图片待补充", color = Color.Red, fontSize = 14.sp)
+            }
+        }
+
+        // Overlays
+        scene.appearance.overlay?.forEach { overlay ->
+            if (overlay.type == OverlayType.DOT_MASK) {
+                DotMaskOverlay(overlay)
+            }
+        }
+    }
+}
+
+@Composable
+fun VideoSceneRenderer(scene: Scene) {
+    val source = scene.content.source
+    val mirror = scene.content.transform?.mirror ?: false
+    val blinkAnim = scene.content.animation?.blink
+    val context = LocalContext.current
+
+    val blinkAlpha = if (blinkAnim != null) {
+        val intervalMs = frequencyToMs(blinkAnim.frequency)
+        var showFrom by remember { mutableStateOf(true) }
+        LaunchedEffect(frequencyToMs(0) )  {
+            while (true) {
+                delay(intervalMs)
+                showFrom = !showFrom
+            }
+        }
+        if (showFrom) 1f else 0f
+    } else 1f
+
+    // Background color (support STATIC, TOGGLE, GRADIENT)
+    val bgCfg = scene.appearance.backgroundColor
+    val bgColor = when (bgCfg?.type) {
+        ColorType.STATIC -> parseColor(bgCfg.value)
+        ColorType.TOGGLE -> {
+            val intervalMs = frequencyToMs(bgCfg.frequency ?: 5)
+            var showFrom by remember { mutableStateOf(true) }
+            LaunchedEffect(frequencyToMs(0) )  {
+                while (true) {
+                    delay(intervalMs)
+                    showFrom = !showFrom
+                }
+            }
+            if (showFrom) parseColor(bgCfg.from) else parseColor(bgCfg.to ?: "#000000")
+        }
+        ColorType.GRADIENT -> {
+            val durMs = (bgCfg.duration ?: 3000).coerceAtLeast(100)
+            var gradient by remember { mutableStateOf(0f) }
+            LaunchedEffect(durMs) {
+                val step = 16L
+                val totalSteps = (durMs / step).coerceAtLeast(1).toInt()
+                var stepCount = 0
+                while (true) {
+                    kotlinx.coroutines.delay(step)
+                    stepCount++
+                    gradient = ((stepCount % totalSteps).toFloat() / totalSteps)
+                }
+            }
+            val from = parseColor(bgCfg.from)
+            val to = parseColor(bgCfg.to ?: "#FF0000")
+            Color(
+                red = from.red + (to.red - from.red) * gradient,
+                green = from.green + (to.green - from.green) * gradient,
+                blue = from.blue + (to.blue - from.blue) * gradient,
+                alpha = from.alpha + (to.alpha - from.alpha) * gradient
+            )
+        }
+        else -> Color.Black
+    }
+
+    // ExoPlayer
+    val player = remember(source) {
+        val p = androidx.media3.exoplayer.ExoPlayer.Builder(context).build()
+        if (!source.isNullOrBlank()) {
+            val mediaItem = androidx.media3.common.MediaItem.fromUri(source)
+            p.setMediaItem(mediaItem)
+            p.prepare()
+            p.playWhenReady = true
+            p.repeatMode = androidx.media3.common.Player.REPEAT_MODE_ALL
+        }
+        p
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            player.stop()
+            player.release()
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(bgColor)
+            .graphicsLayer(alpha = blinkAlpha)
+    ) {
+        if (!source.isNullOrBlank()) {
+            AndroidView(
+                factory = {
+                    PlayerView(context).apply {
+                        this.player = player
+                        useController = false
+                        resizeMode = androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+                    }
+                },
+                update = { view ->
+                    view.scaleX = if (mirror) -1f else 1f
+                },
+                modifier = Modifier.fillMaxSize()
+            )
+        } else {
+            Box(
+                modifier = Modifier.fillMaxSize().background(Color.DarkGray),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("视频待补充", color = Color.Red, fontSize = 14.sp)
+            }
+        }
+
+        // Overlays
+        scene.appearance.overlay?.forEach { overlay ->
+            if (overlay.type == OverlayType.DOT_MASK) {
+                DotMaskOverlay(overlay)
+            }
+        }
+    }
+}
+
+// ─── Dot Mask Overlay ────────────────────────────────────
+
+@Composable
+fun DotMaskOverlay(overlay: Overlay) {
+    val density = LocalDensity.current.density
+    val dotSize = overlay.size * density * 0.9f  // dp → px
+    val style = overlay.style
+
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        val spacing = dotSize * 1.3f
+        val nativeCanvas = drawContext.canvas.nativeCanvas
+
+        // Save a new layer so CLEAR only affects this layer, not content below
+        nativeCanvas.saveLayer(0f, 0f, size.width, size.height, null)
+
+        // Fill layer with opaque black
+        val maskPaint = android.graphics.Paint().apply {
+            color = android.graphics.Color.BLACK
+            isAntiAlias = true
+        }
+        nativeCanvas.drawRect(0f, 0f, size.width, size.height, maskPaint)
+
+        // Punch holes (dots) through the mask using CLEAR
+        val clearPaint = android.graphics.Paint().apply {
+            isAntiAlias = true
+            xfermode = android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.CLEAR)
+        }
+        var x = 0f
+        var y = 0f
+        while (y < size.height) {
+            x = 0f
+            while (x < size.width) {
+                when (style) {
+                    "round" -> {
+                        nativeCanvas.drawCircle(
+                            x + dotSize / 2, y + dotSize / 2,
+                            dotSize / 2, clearPaint
+                        )
+                    }
+                    "square" -> {
+                        nativeCanvas.drawRect(
+                            x, y, x + dotSize, y + dotSize, clearPaint
+                        )
+                    }
+                    "heart" -> {
+                        val cx = x + dotSize / 2
+                        val cy = y + dotSize / 2
+                        val s = dotSize * 0.45f
+                        val path = android.graphics.Path()
+                        // Start at bottom tip
+                        path.moveTo(cx, cy + s)
+                        // Left lobe: cubic to top-center via left
+                        path.cubicTo(
+                            cx - s, cy,
+                            cx - s, cy - s * 1.1f,
+                            cx, cy - s * 0.6f
+                        )
+                        // Right lobe: cubic back to bottom tip
+                        path.cubicTo(
+                            cx + s, cy - s * 1.1f,
+                            cx + s, cy,
+                            cx, cy + s
+                        )
+                        nativeCanvas.drawPath(path, clearPaint)
+                    }
+                }
+                x += spacing
+            }
+            y += spacing
+        }
+
+        // Merge layer back
+        nativeCanvas.restore()
+    }
+}
+
+// ─── Transition Overlay ──────────────────────────────────
+
+@Composable
+fun TransitionOverlay(type: TransitionType, duration: Long, bgColor: String = "#000000") {
+    val durationMs = if (duration > 0) duration.toInt().coerceAtLeast(100) else 1000
+    val curtainColor = parseColor(bgColor)
+
+    val offsetFraction = remember { Animatable(1f) }
+
+    LaunchedEffect(type, durationMs) {
+        offsetFraction.snapTo(1f)
+        offsetFraction.animateTo(
+            0f,
+            animationSpec = tween(durationMillis = durationMs, easing = LinearEasing)
+        )
+    }
+
+    val fraction = offsetFraction.value
+
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        when (type) {
+            TransitionType.FADE_IN -> {
+                // Curtain fades from opaque to transparent
+                drawRect(
+                    color = curtainColor.copy(alpha = fraction),
+                    topLeft = Offset.Zero,
+                    size = size
+                )
+            }
+            TransitionType.SLIDE_IN_FROM_LEFT -> {
+                // Content slides in from left
+                drawRect(
+                    color = curtainColor,
+                    topLeft = Offset(size.width * (1f - fraction), 0f),
+                    size = androidx.compose.ui.geometry.Size(size.width * fraction, size.height)
+                )
+            }
+            TransitionType.SLIDE_IN_FROM_RIGHT -> {
+                // Content slides in from right
+                drawRect(
+                    color = curtainColor,
+                    topLeft = Offset.Zero,
+                    size = androidx.compose.ui.geometry.Size(size.width * fraction, size.height)
+                )
+            }
+            TransitionType.SLIDE_IN_FROM_TOP -> {
+                // Content slides in from top
+                drawRect(
+                    color = curtainColor,
+                    topLeft = Offset(0f, size.height * (1f - fraction)),
+                    size = androidx.compose.ui.geometry.Size(size.width, size.height * fraction)
+                )
+            }
+            TransitionType.SLIDE_IN_FROM_BOTTOM -> {
+                // Content slides in from bottom
+                drawRect(
+                    color = curtainColor,
+                    topLeft = Offset.Zero,
+                    size = androidx.compose.ui.geometry.Size(size.width, size.height * fraction)
+                )
+            }
+            TransitionType.NONE -> { /* no-op */ }
+        }
+    }
+}
+
+// ─── Utility ─────────────────────────────────────────────
+
+private fun parseColor(hex: String?): Color {
+    if (hex.isNullOrBlank()) return Color.Black
+    return try {
+        Color(android.graphics.Color.parseColor(hex))
+    } catch (_: Exception) {
+        Color.Black
+    }
+}

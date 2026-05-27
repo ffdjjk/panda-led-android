@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PandaLED</string>
+    <string name="untitled_project">未命名项目</string>
+    <string name="app_subtitle">把心亮出来，让世界看见。</string>
+
+    <!-- Home -->
+    <string name="home_no_projects">暂无项目</string>
+    <string name="home_scan_hint">点击右下角 + 创建</string>
+    <string name="home_new_project">新建</string>
+    <string name="creating_project">正在创建项目…</string>
+    <string name="home_scan_import">扫码导入</string>
+    <string name="home_settings">设置</string>
+    <string name="home_delete_title">确认删除</string>
+    <string name="home_delete_confirm">确定删除「%1$s」?</string>
+    <string name="home_delete">删除</string>
+    <string name="home_cancel">取消</string>
+    <string name="home_confirm">确定</string>
+    <string name="home_scan_title">扫描二维码</string>
+
+    <!-- Detail -->
+    <string name="detail_tab_info">项目信息</string>
+    <string name="detail_tab_scenes">场景列表</string>
+    <string name="detail_tab_editor">场景编辑</string>
+    <string name="detail_project_name">项目名称</string>
+    <string name="detail_start_time">开始时间</string>
+    <string name="pick_time">选择时间</string>
+    <string name="detail_save">保存</string>
+    <string name="detail_fullscreen">全屏</string>
+    <string name="detail_missing_assets">个素材待补充</string>
+
+    <!-- Scene List -->
+    <string name="scene_waiting">等待场景</string>
+    <string name="scene_add">添加场景</string>
+    <string name="scene_text">文字场景</string>
+    <string name="scene_image">图片场景</string>
+    <string name="scene_video">视频场景</string>
+    <string name="scene_move_up">上移</string>
+    <string name="scene_move_down">下移</string>
+    <string name="scene_delete">删除</string>
+
+    <!-- Idle Scene Types -->
+    <string name="idle_none">黑屏</string>
+    <string name="idle_clock">时钟</string>
+    <string name="idle_countdown">倒计时</string>
+    <string name="idle_image">图片</string>
+    <string name="idle_waiting_hint">项目开始前，将持续展示此场景。</string>
+    <string name="idle_view_start_time">查看开始时间</string>
+    <string name="idle_black_hint">黑屏模式 - 无额外配置</string>
+
+    <!-- Scene Editor -->
+    <string name="editor_select_scene">从场景列表选择一个场景</string>
+    <string name="editor_scene_not_found">场景不存在</string>
+    <string name="editor_basic">基础设置</string>
+    <string name="editor_content">内容</string>
+    <string name="editor_transition">转场动画</string>
+    <string name="editor_appearance">外观</string>
+    <string name="editor_scene_name">场景名称</string>
+    <string name="editor_duration">持续时间 (秒)</string>
+    <string name="duration_unit">秒</string>
+    <string name="editor_play_mode">播放模式</string>
+    <string name="editor_show_mode">显示模式</string>
+    <string name="editor_loop">循环</string>
+    <string name="editor_once">单次</string>
+    <string name="editor_enter_anim">进入动画</string>
+    <string name="editor_anim_duration">动画时长 (秒)</string>
+    <string name="editor_format">格式</string>
+    <string name="editor_text_content">文字内容</string>
+    <string name="editor_font_size">字号</string>
+    <string name="editor_font">字体</string>
+    <string name="font_preview">你好</string>
+    <string name="font_default">默认</string>
+    <string name="font_bold">粗体</string>
+    <string name="font_light">细体</string>
+    <string name="font_condensed">窄体</string>
+    <string name="font_serif">衬线</string>
+    <string name="font_mono">等宽</string>
+    <string name="font_casual">随意</string>
+    <string name="font_cursive">手写</string>
+    <string name="font_noto_sans">思源黑体</string>
+    <string name="font_noto_serif">思源宋体</string>
+    <string name="font_noto_sans_bold">思源粗黑</string>
+    <string name="font_noto_sans_light">思源细黑</string>
+    <string name="font_chinese_simple">简体</string>
+    <string name="font_chinese_classical">古风</string>
+    <string name="font_zcool">站酷黄油</string>
+    <string name="font_mashan">马山手写</string>
+    <string name="editor_color">颜色</string>
+    <string name="editor_color_mode">颜色模式</string>
+    <string name="editor_color_static">静态</string>
+    <string name="editor_color_toggle">交替</string>
+    <string name="editor_color_gradient">渐变</string>
+    <string name="color_a">颜色 A</string>
+    <string name="color_b">颜色 B</string>
+    <string name="editor_scroll">滚动</string>
+    <string name="countdown_sec">%d秒</string>
+    <string name="editor_scroll_speed">速度</string>
+    <string name="editor_continuous">首尾相接</string>
+    <string name="editor_mirror">镜像</string>
+    <string name="editor_blink">闪烁</string>
+    <string name="editor_frequency">频率</string>
+    <string name="editor_select_image">选择图片</string>
+    <string name="editor_replace_image">更换图片</string>
+    <string name="editor_select_video">选择视频</string>
+    <string name="editor_replace_video">更换视频</string>
+    <string name="missing_image">待补充</string>
+    <string name="editor_missing_image">⚠ 待补充图片</string>
+    <string name="editor_missing_video">⚠ 待补充视频</string>
+    <string name="editor_video_duration">视频时长</string>
+    <string name="editor_video_unknown">未知</string>
+    <string name="editor_bg_color">背景色</string>
+    <string name="editor_bg_color_mode">背景颜色模式</string>
+    <string name="editor_bg_color_a">背景色 A</string>
+    <string name="editor_bg_color_b">背景色 B</string>
+    <string name="editor_dot_mask">点阵遮罩</string>
+    <string name="editor_mask_style">遮罩样式</string>
+    <string name="editor_mask_round">圆形</string>
+    <string name="editor_mask_square">正方形</string>
+    <string name="editor_mask_heart">爱心形</string>
+    <string name="editor_dot_size">点阵大小</string>
+    <string name="editor_start_color">起始颜色</string>
+    <string name="editor_end_color">结束颜色</string>
+
+    <!-- Transition Types -->
+    <string name="transition_none">无</string>
+    <string name="transition_fade_in">淡入</string>
+    <string name="transition_slide_left">从左滑入</string>
+    <string name="transition_slide_right">从右滑入</string>
+    <string name="transition_slide_top">从上滑入</string>
+    <string name="transition_slide_bottom">从下滑入</string>
+
+    <!-- Scroll Directions -->
+    <string name="scroll_ltr">左→右</string>
+    <string name="scroll_rtl">右→左</string>
+    <string name="scroll_ttb">上→下</string>
+    <string name="scroll_btt">下→上</string>
+
+    <!-- Color Picker -->
+    <string name="invalid_hex">无效</string>
+    <string name="color_picker_title">选择颜色</string>
+
+    <!-- Fullscreen -->
+    <string name="fullscreen_loading">加载中…</string>
+    <string name="fullscreen_lock">锁定</string>
+    <string name="fullscreen_video_missing">视频待补充</string>
+
+    <!-- Settings -->
+    <string name="settings_title">设置</string>
+    <string name="settings_back">返回</string>
+    <string name="settings_language">语种</string>
+    <string name="settings_lang_system">随系统</string>
+    <string name="settings_lang_zh">中文</string>
+    <string name="settings_lang_en">English</string>
+    <string name="settings_theme">主题</string>
+    <string name="settings_theme_system">随系统</string>
+    <string name="settings_theme_light">浅色模式</string>
+    <string name="settings_theme_dark">深色模式</string>
+    <string name="settings_cache">缓存</string>
+    <string name="settings_cache_unused">未使用缓存</string>
+    <string name="settings_cache_clear">清理缓存</string>
+    <string name="settings_cache_calculating">计算中…</string>
+
+    <!-- QR -->
+    <string name="share">分享</string>
+    <string name="share_title">分享项目</string>
+    <string name="share_hint">扫描这个二维码导入本项目</string>
+    <string name="save">保存</string>
+    <string name="qr_scan_hint">打开 PandaLED\n扫描二维码导入此项目</string>
+    <string name="close">关闭</string>
+    <string name="qr_code_desc">项目二维码</string>
+    <string name="qr_export">导出二维码</string>
+    <string name="qr_import_error">导入失败，二维码内容无效</string>
+    <string name="qr_import_success">导入成功</string>
+    <string name="subscribe_title">订阅会员免广告</string>
+    <string name="subscribe_cta">订阅会员免广告</string>
+    <string name="subscribe_hint">订阅会员即可免广告，无限制使用全部功能。</string>
+    <string name="start_directly">直接开始</string>
+    <string name="loading_ads">正在加载广告…</string>
+    <string name="network_error">请检查网络</string>
+    <string name="toast_missing">请补充完整内容</string>
+    <string name="missing_assets">待补充完整 — %s</string>
+</resources>

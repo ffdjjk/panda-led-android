@@ -1,0 +1,138 @@
+{
+  version: "1.0.0",
+  name: "第一个LED项目",
+  startTime: "2026-05-09 11:00:00", // project创建时间
+  idleScene: {
+    type: "countdown",
+    content: {
+      style: {
+        format: "{hours}:{minutes}:{seconds}",
+        fontFamily: "sans-serif",
+        size: 12,
+        color: "#FFFFFF",
+      },
+    },
+  },
+  scenes: [
+    {
+      name: "文字场景",
+      type: "text",
+      duration: 5, //秒数
+      playMode: "once",
+      content: {
+        source: "Hello World!",
+        style: {
+          size: 12,
+          fontFamily: "sans-serif",
+        },
+        color: {
+          type: "static",
+          value: "#FFFFFF",
+        },
+        transform: {
+          mirror: false,
+        },
+        motion: {
+          scroll: {
+            direction: "leftToRight",
+            speed: 5, //区间: 1-10
+          },
+        },
+        animation: {
+          blink: {
+            frequency: 5, //区间: 0-10, 每个数值对应的秒数: 0,0.1,0.2,0.4,0.6,0.8,1,2,3,4,5
+          },
+        },
+      },
+      transition: {
+        enter: {
+          type: "none",
+          duration: 0,
+        },
+      },
+      appearance: {
+        overlay: [
+          {
+            type: "dotMask",
+            size: 5, //区间: 1-10
+            style: "round",
+            zIndex: 0,
+          },
+        ],
+        backgroundColor: {
+          type: "static",
+          value: "#000000",
+        },
+      },
+    },
+    {
+      name: "图片场景",
+      type: "image",
+      duration: 5, //秒数
+      playMode: "once",
+      content: {
+        source: "localpath/to/image.jpg",
+        transform: {
+          mirror: false,
+        },
+        animation: {
+          blink: {
+            frequency: 5, //区间: 0-10, 每个数值对应的秒数: 0,0.1,0.2,0.4,0.6,0.8,1,2,3,4,5
+          },
+        },
+      },
+      transition: {
+        enter: {
+          type: "fadeIn",
+          duration: 0.5, // 秒数
+        },
+      },
+      appearance: {
+        overlay: [
+          {
+            type: "dotMask",
+            size: 5, //区间: 1-10
+            style: "round",
+            zIndex: 0,
+          },
+        ],
+        backgroundColor: {
+          type: "static",
+          value: "#000000",
+        },
+      },
+    },
+    {
+      name: "视频场景",
+      type: "video",
+      duration: 5, //秒数
+      playMode: "once",
+      content: {
+        source: "localpath/to/video.mp4",
+        transform: {
+          mirror: false,
+        },
+      },
+      transition: {
+        enter: {
+          type: "fadeIn",
+          duration: 0.5, // 秒数
+        },
+      },
+      appearance: {
+        overlay: [
+          {
+            type: "dotMask",
+            size: 5, //区间: 1-10
+            style: "round",
+            zIndex: 0,
+          },
+        ],
+        backgroundColor: {
+          type: "static",
+          value: "#000000",
+        },
+      },
+    },
+  ],
+}
