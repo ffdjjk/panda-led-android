@@ -20,15 +20,18 @@ class ProjectRepository(
     /** Load full project detail from JSON. */
     suspend fun loadProject(fileName: String): Project? = jsonFileManager.loadProject(fileName)
 
-    /** Save a new project (both index + JSON file). Assigns next orderIndex. */
+    /** Save a new project (both index + JSON file). New project gets orderIndex 0 (top). */
     suspend fun saveProject(project: Project): String {
         val fileName = jsonFileManager.saveProject(project)
+        // Shift all existing projects down by 1, so the new project sits at the top
         val all = projectDao.getAllProjectsSnapshot()
-        val nextOrder = (all.maxOfOrNull { it.orderIndex } ?: -1) + 1
+        all.forEach { p ->
+            projectDao.updateProject(p.copy(orderIndex = p.orderIndex + 1))
+        }
         val index = ProjectIndex(
             name = project.name,
             jsonFileName = fileName,
-            orderIndex = nextOrder
+            orderIndex = 0
         )
         projectDao.insertProject(index)
         return index.id
