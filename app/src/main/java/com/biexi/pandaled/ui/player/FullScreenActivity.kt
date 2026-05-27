@@ -1,13 +1,12 @@
 package com.biexi.pandaled.ui.player
 
 import android.os.Bundle
+import android.util.Log
 import android.view.OrientationEventListener
 import android.view.View
 import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.os.LocaleListCompat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
@@ -43,19 +42,7 @@ class FullScreenActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Apply saved locale
-        val prefs = getSharedPreferences("pandaled_prefs", MODE_PRIVATE)
-        val language = prefs.getString("language", "") ?: ""
-        val locale = when {
-            language == "zh" -> java.util.Locale("zh")
-            language == "en" -> java.util.Locale("en")
-            else -> {
-                val sys = java.util.Locale.getDefault()
-                if (sys.language.startsWith("zh")) java.util.Locale("zh") else java.util.Locale("en")
-            }
-        }
-        AppCompatDelegate.setApplicationLocales(LocaleListCompat.create(locale))
+        Log.d("PandaFlow", "[FullScreenActivity] onCreate, savedInstanceState=${savedInstanceState != null}")
 
         hideSystemUi()
 
@@ -68,10 +55,28 @@ class FullScreenActivity : AppCompatActivity() {
             PandaLedTheme {
                 FullScreenPlayer(
                     projectId = projectId,
-                    onExit = { finish() }
+                    onExit = {
+                        Log.d("PandaFlow", "[FullScreenActivity] onExit → finish()")
+                        finish()
+                    }
                 )
             }
         }
+    }
+
+    override fun onDestroy() {
+        Log.d("PandaFlow", "[FullScreenActivity] onDestroy")
+        super.onDestroy()
+    }
+
+    override fun onPause() {
+        Log.d("PandaFlow", "[FullScreenActivity] onPause")
+        super.onPause()
+    }
+
+    override fun onResume() {
+        Log.d("PandaFlow", "[FullScreenActivity] onResume")
+        super.onResume()
     }
 
     private fun hideSystemUi() {
@@ -96,16 +101,24 @@ fun FullScreenPlayer(
     var project by remember { mutableStateOf<Project?>(null) }
 
     LaunchedEffect(projectId) {
+        Log.d("PandaFlow", "[FullScreenPlayer] LaunchedEffect, projectId=$projectId, 开始加载...")
         val index = repository.getProjectIndex(projectId)
         if (index != null) {
             project = repository.loadProject(index.jsonFileName)
-            if (project == null) onExit()
+            if (project == null) {
+                Log.w("PandaFlow", "[FullScreenPlayer] 项目加载失败, onExit()")
+                onExit()
+            } else {
+                Log.d("PandaFlow", "[FullScreenPlayer] 项目加载成功: ${project!!.name}, scenes=${project!!.scenes.size}")
+            }
         } else {
+            Log.w("PandaFlow", "[FullScreenPlayer] projectIndex为null, onExit()")
             onExit()
         }
     }
 
     if (project == null) {
+        Log.d("PandaFlow", "[FullScreenPlayer] project==null, 显示加载中...")
         Box(
             modifier = Modifier.fillMaxSize().background(Color.Black),
             contentAlignment = Alignment.Center
@@ -143,6 +156,16 @@ fun FullScreenContent(
     }
     var isBeforeStartTime by remember(project) { mutableStateOf(initialShouldShowIdle) }
     var isFinished by remember { mutableStateOf(false) }
+
+    // Log state transitions
+    LaunchedEffect(isFinished) {
+        Log.d("PandaFlow", "[FullScreenContent] isFinished=$isFinished")
+    }
+    LaunchedEffect(currentIndex) {
+        Log.d("PandaFlow", "[FullScreenContent] currentIndex=$currentIndex, isBeforeStartTime=$isBeforeStartTime")
+    }
+
+    Log.d("PandaFlow", "[FullScreenContent] 渲染, currentIndex=$currentIndex, isBeforeStartTime=$isBeforeStartTime, isFinished=$isFinished")
 
     LaunchedEffect(project) {
         val startMs = parseProjectStartMs(project.startTime)
@@ -203,6 +226,7 @@ fun FullScreenContent(
     }
 
     val (contentRotation, contentAlpha) = rememberLandscapeFlipRotation()
+    Log.d("PandaFlow", "[FullScreenContent] alpha=$contentAlpha, rotation=$contentRotation")
 
     Box(
         modifier = Modifier
@@ -266,7 +290,6 @@ fun FullScreenContent(
 private fun rememberLandscapeFlipRotation(): Pair<Float, Float> {
     val context = LocalContext.current
     var rotation by remember { mutableFloatStateOf(0f) }
-    var rotationInitialized by remember { mutableStateOf(false) }
 
     DisposableEffect(context) {
         val display = (context as android.app.Activity).windowManager.defaultDisplay
@@ -274,37 +297,36 @@ private fun rememberLandscapeFlipRotation(): Pair<Float, Float> {
         val sensor = sensorManager.getDefaultSensor(android.hardware.Sensor.TYPE_GRAVITY)
             ?: sensorManager.getDefaultSensor(android.hardware.Sensor.TYPE_ACCELEROMETER)
 
-        if (sensor == null) {
-            rotation = 0f
-            rotationInitialized = true
-            onDispose { }
-        } else {
-            val listener = object : android.hardware.SensorEventListener {
+        val listener = if (sensor != null) {
+            val l = object : android.hardware.SensorEventListener {
                 override fun onSensorChanged(event: android.hardware.SensorEvent) {
-                    val x = event.values[0] // device right axis
+                    val x = event.values[0]
                     val displayRot = display.rotation
-                    // ROTATION_90: display top = left edge. Content upright when right edge (x>0) faces down.
-                    // ROTATION_270: display top = right edge. Content upright when left edge (x<0) faces down.
-                    rotation = when (displayRot) {
+                    val newRotation = when (displayRot) {
                         android.view.Surface.ROTATION_90 -> if (x > 0f) 0f else 180f
                         android.view.Surface.ROTATION_270 -> if (x < 0f) 0f else 180f
                         else -> 0f
                     }
-                    rotationInitialized = true
+                    if (newRotation != rotation) {
+                        rotation = newRotation
+                        Log.d("PandaFlow", "[rememberLandscapeFlipRotation] rotation changed to $rotation")
+                    }
                 }
 
                 override fun onAccuracyChanged(sensor: android.hardware.Sensor?, accuracy: Int) = Unit
             }
-            sensorManager.registerListener(listener, sensor, android.hardware.SensorManager.SENSOR_DELAY_UI)
-            onDispose {
+            sensorManager.registerListener(l, sensor, android.hardware.SensorManager.SENSOR_DELAY_UI)
+            l
+        } else null
+
+        onDispose {
+            if (listener != null) {
                 sensorManager.unregisterListener(listener)
-                rotation = 0f
             }
         }
     }
 
-    val alpha = if (rotationInitialized) 1f else 0f
-    return rotation to alpha
+    return rotation to 1f
 }
 
 // ─── Full-screen renderers ───────────────────────────────

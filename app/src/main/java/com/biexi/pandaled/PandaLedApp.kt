@@ -1,6 +1,8 @@
 package com.biexi.pandaled
 
 import android.app.Application
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import com.biexi.pandaled.data.local.AppDatabase
 import com.biexi.pandaled.data.local.JsonFileManager
 import com.biexi.pandaled.data.repository.ProjectRepository
@@ -18,6 +20,21 @@ class PandaLedApp : Application() {
         private set
 
     override fun onCreate() {
+        // Apply saved locale BEFORE super.onCreate() to avoid activity recreations
+        val prefs = getSharedPreferences("pandaled_prefs", MODE_PRIVATE)
+        val language = prefs.getString("language", "") ?: ""
+        val locale = when {
+            language == "zh" -> Locale("zh")
+            language == "en" -> Locale("en")
+            else -> {
+                val sys = Locale.getDefault()
+                if (sys.language.startsWith("zh")) Locale("zh") else Locale("en")
+            }
+        }
+        AppCompatDelegate.setApplicationLocales(
+            LocaleListCompat.create(locale)
+        )
+
         super.onCreate()
         instance = this
 
