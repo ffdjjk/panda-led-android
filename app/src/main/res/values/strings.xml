@@ -177,6 +177,9 @@
     <string name="start_directly">直接开始</string>
     <string name="loading_ads">正在加载广告…</string>
     <string name="network_error">请检查网络</string>
+    <string name="ad_countdown">等待 %d秒</string>
+    <string name="ad_network_unstable">网络不稳定，你可以返回重试</string>
+    <string name="ad_go_back">返回</string>
     <string name="toast_missing">请补充完整内容</string>
     <string name="missing_assets">待补充完整 — %s</string>
 </resources>

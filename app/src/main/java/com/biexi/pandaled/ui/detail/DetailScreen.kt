@@ -57,6 +57,8 @@ fun DetailScreen(
     var showAdLoading by remember { mutableStateOf(false) }
     var showNetworkError by remember { mutableStateOf(false) }
     var adLoadingInProgress by remember { mutableStateOf(false) }
+    var adLoadingCountdown by remember { mutableIntStateOf(10) }
+    var adLoadingTimedOut by remember { mutableStateOf(false) }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -313,6 +315,19 @@ fun DetailScreen(
 
 
 
+    // ─── Countdown timer for ad loading ──────────────
+    LaunchedEffect(showAdLoading) {
+        if (showAdLoading) {
+            adLoadingCountdown = 15
+            adLoadingTimedOut = false
+            while (adLoadingCountdown > 0) {
+                delay(1000)
+                adLoadingCountdown--
+            }
+            adLoadingTimedOut = true
+        }
+    }
+
     // ─── Loading overlay during ad load ───────────────
     val activity = context as android.app.Activity
     val prevNavColor = activity.window.navigationBarColor
@@ -333,10 +348,59 @@ fun DetailScreen(
                 modifier = Modifier.fillMaxSize().background(Color.Black),
                 contentAlignment = Alignment.Center
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    CircularProgressIndicator(color = Color.White)
-                    Spacer(Modifier.height(16.dp))
-                    Text(stringResource(R.string.loading_ads), color = Color.White)
+                if (!adLoadingTimedOut) {
+                    // ── Loading state with countdown ──
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        CircularProgressIndicator(color = Color.White)
+                        Spacer(Modifier.height(16.dp))
+                        Text(stringResource(R.string.loading_ads), color = Color.White)
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            stringResource(R.string.ad_countdown, adLoadingCountdown),
+                            color = Color.White.copy(alpha = 0.7f),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                } else {
+                    // ── Timeout / network error state ──
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        // Warning icon
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = null,
+                            tint = Color(0xFFFFA726),
+                            modifier = Modifier.size(56.dp)
+                        )
+                        Spacer(Modifier.height(16.dp))
+                        Text(
+                            stringResource(R.string.ad_network_unstable),
+                            color = Color.White,
+                            style = MaterialTheme.typography.bodyLarge,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(Modifier.height(24.dp))
+                        OutlinedButton(
+                            onClick = {
+                                adLoadingInProgress = false
+                                showAdLoading = false
+                                showNetworkError = false
+                                activity.window.navigationBarColor = prevNavColor
+                                activity.window.statusBarColor = prevStatusColor
+                            },
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = Color.White
+                            ),
+                            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.6f))
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(Modifier.width(6.dp))
+                            Text(stringResource(R.string.ad_go_back))
+                        }
+                    }
                 }
             }
         }
@@ -417,11 +481,8 @@ fun DetailScreen(
                             })
                         },
                         onNetworkError = {
-                            adLoadingInProgress = false
-                            showAdLoading = false
-                            activity.window.navigationBarColor = prevNavColor
-                            activity.window.statusBarColor = prevStatusColor
-                            showNetworkError = true
+                            // Instead of hiding the dialog, transition to timeout state
+                            adLoadingTimedOut = true
                         }
                     )
                 }) {

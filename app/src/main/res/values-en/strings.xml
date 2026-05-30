@@ -177,6 +177,9 @@
     <string name="start_directly">Start Directly</string>
     <string name="loading_ads">Loading ad…</string>
     <string name="network_error">Please check your network</string>
+    <string name="ad_countdown">Waiting %ds</string>
+    <string name="ad_network_unstable">Network unstable, please go back and retry</string>
+    <string name="ad_go_back">Go Back</string>
     <string name="toast_missing">Please complete all content</string>
     <string name="missing_assets">Missing — %s</string>
 </resources>
