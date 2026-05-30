@@ -11,6 +11,8 @@
     <string name="creating_project">Creating project…</string>
     <string name="home_scan_import">Scan Import</string>
     <string name="home_settings">Settings</string>
+    <string name="home_theme_switch_light">Switch to light</string>
+    <string name="home_theme_switch_dark">Switch to dark</string>
     <string name="home_delete_title">Confirm Delete</string>
     <string name="home_delete_confirm">Delete "%1$s"?</string>
     <string name="home_delete">Delete</string>

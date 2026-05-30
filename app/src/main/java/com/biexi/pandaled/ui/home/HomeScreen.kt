@@ -10,14 +10,15 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -35,6 +36,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
@@ -100,32 +103,35 @@ fun HomeScreen(
 
     var fabExpanded by remember { mutableStateOf(false) }
     var showSettings by remember { mutableStateOf(false) }
+    var showLogoOverlay by remember { mutableStateOf(false) }
 
-    if (showSettings) {
-        SettingsScreen(onBack = { showSettings = false })
-        return
-    }
-
-    if (isCreating) {
-        Box(
-            modifier = Modifier.fillMaxSize().background(Color(0xFF000000)),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                CircularProgressIndicator(color = Color.White)
-                Spacer(Modifier.height(16.dp))
-                Text(stringResource(R.string.creating_project), color = Color.White)
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (showSettings) {
+            SettingsScreen(onBack = { showSettings = false })
+        } else if (isCreating) {
+            Box(
+                modifier = Modifier.fillMaxSize().background(Color(0xFF000000)),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    CircularProgressIndicator(color = Color.White)
+                    Spacer(Modifier.height(16.dp))
+                    Text(stringResource(R.string.creating_project), color = Color.White)
+                }
             }
-        }
-        return
-    }
-
-    Scaffold(
+        } else {
+        Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable(
+                                indication = null,
+                                interactionSource = remember { MutableInteractionSource() }
+                            ) { showLogoOverlay = true }) {
                         // Video logo - loops every 5 seconds
                         val ctx = LocalContext.current
                         val exoPlayer = remember {
@@ -175,6 +181,39 @@ fun HomeScreen(
                     actionIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                 ),
                 actions = {
+                    // Dark / Light theme toggle
+                    val ctxActions = LocalContext.current
+                    val prefs = remember(ctxActions) {
+                        ctxActions.getSharedPreferences("pandaled_prefs", android.content.Context.MODE_PRIVATE)
+                    }
+                    var colorMode by remember(prefs) {
+                        mutableStateOf(prefs.getString("color_mode", "system") ?: "system")
+                    }
+                    DisposableEffect(prefs) {
+                        val listener =
+                            android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+                                if (key == "color_mode") {
+                                    colorMode = prefs.getString("color_mode", "system") ?: "system"
+                                }
+                            }
+                        prefs.registerOnSharedPreferenceChangeListener(listener)
+                        onDispose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+                    }
+                    val effectiveDark = when (colorMode) {
+                        "dark" -> true
+                        "light" -> false
+                        else -> isSystemInDarkTheme()
+                    }
+                    IconButton(onClick = {
+                        val next = if (effectiveDark) "light" else "dark"
+                        prefs.edit().putString("color_mode", next).apply()
+                    }) {
+                        Icon(
+                            imageVector = if (effectiveDark) Icons.Filled.LightMode else Icons.Filled.DarkMode,
+                            contentDescription = if (effectiveDark) stringResource(R.string.home_theme_switch_light) else stringResource(R.string.home_theme_switch_dark)
+                        )
+                    }
+                    // Settings
                     IconButton(onClick = { showSettings = true }) {
                         Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.home_settings))
                     }
@@ -313,6 +352,15 @@ fun HomeScreen(
             }
         )
     }
+
+        // Logo overlay — fullscreen MP4 player with two-phase animation
+        if (showLogoOverlay) {
+            LogoOverlay(
+                onDismissed = { showLogoOverlay = false }
+            )
+        }
+        } // end else
+    } // end Box
 
 }
 
@@ -511,6 +559,76 @@ fun QrScannerDialog(
                     .padding(48.dp),
                 color = MaterialTheme.colorScheme.onPrimary,
                 style = MaterialTheme.typography.bodyLarge
+            )
+        }
+    }
+}
+
+// ─── Logo Overlay ───────────────────────────────────────
+
+@Composable
+fun LogoOverlay(
+    onDismissed: () -> Unit
+) {
+    val ctx = LocalContext.current
+    val exoPlayer = remember {
+        ExoPlayer.Builder(ctx).build().apply {
+            val uri = android.net.Uri.parse("android.resource://${ctx.packageName}/${R.raw.logo}")
+            setMediaItem(MediaItem.fromUri(uri))
+            volume = 0f
+            playWhenReady = true
+            repeatMode = Player.REPEAT_MODE_ALL
+            prepare()
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            exoPlayer.release()
+        }
+    }
+
+    var isExiting by remember { mutableStateOf(false) }
+    var showVideo by remember { mutableStateOf(false) }  // video appears only after bg is ready
+    val bgAlpha = remember { Animatable(0f) }
+
+    // Enter: fade in background to 90% over 1s → show video
+    LaunchedEffect(Unit) {
+        bgAlpha.animateTo(0.9f, animationSpec = tween(300))
+        showVideo = true
+    }
+
+    // Exit: hide video → fade out background over 0.3s
+    LaunchedEffect(isExiting) {
+        if (isExiting) {
+            showVideo = false
+            bgAlpha.animateTo(0f, animationSpec = tween(300))
+            onDismissed()
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = bgAlpha.value))
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            ) { if (!isExiting) isExiting = true },
+        contentAlignment = Alignment.Center
+    ) {
+        if (showVideo) {
+            AndroidView(
+                factory = { viewCtx ->
+                    PlayerView(viewCtx).apply {
+                        player = exoPlayer
+                        useController = false
+                        resizeMode = androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_FIT
+                    }
+                },
+                modifier = Modifier
+                    .size(width = 300.dp, height = 300.dp)
+                    .clip(RoundedCornerShape(24.dp))
             )
         }
     }
