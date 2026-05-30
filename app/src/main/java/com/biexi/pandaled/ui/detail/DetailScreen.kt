@@ -55,10 +55,11 @@ fun DetailScreen(
     var showMenu by remember { mutableStateOf(false) }
     var showSubscribeDialog by remember { mutableStateOf(false) }
     var showAdLoading by remember { mutableStateOf(false) }
-    var showNetworkError by remember { mutableStateOf(false) }
     var adLoadingInProgress by remember { mutableStateOf(false) }
     var adLoadingCountdown by remember { mutableIntStateOf(10) }
     var adLoadingTimedOut by remember { mutableStateOf(false) }
+    var adStarted by remember { mutableStateOf(false) }
+
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -320,11 +321,15 @@ fun DetailScreen(
         if (showAdLoading) {
             adLoadingCountdown = 15
             adLoadingTimedOut = false
-            while (adLoadingCountdown > 0) {
+            adStarted = false
+            while (adLoadingCountdown > 0 && !adStarted) {
                 delay(1000)
                 adLoadingCountdown--
             }
-            adLoadingTimedOut = true
+            // Only show timeout if ad hasn't started yet
+            if (!adStarted) {
+                adLoadingTimedOut = true
+            }
         }
     }
 
@@ -349,22 +354,23 @@ fun DetailScreen(
                 contentAlignment = Alignment.Center
             ) {
                 if (!adLoadingTimedOut) {
-                    // ── Loading state with countdown ──
+                    // ── Spinner always visible; text hidden once ad starts ──
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         CircularProgressIndicator(color = Color.White)
-                        Spacer(Modifier.height(16.dp))
-                        Text(stringResource(R.string.loading_ads), color = Color.White)
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                            stringResource(R.string.ad_countdown, adLoadingCountdown),
-                            color = Color.White.copy(alpha = 0.7f),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
+                        if (!adStarted) {
+                            Spacer(Modifier.height(16.dp))
+                            Text(stringResource(R.string.loading_ads), color = Color.White)
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                stringResource(R.string.ad_countdown, adLoadingCountdown),
+                                color = Color.White.copy(alpha = 0.7f),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
                     }
                 } else {
                     // ── Timeout / network error state ──
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        // Warning icon
                         Icon(
                             imageVector = Icons.Default.Warning,
                             contentDescription = null,
@@ -383,7 +389,6 @@ fun DetailScreen(
                             onClick = {
                                 adLoadingInProgress = false
                                 showAdLoading = false
-                                showNetworkError = false
                                 activity.window.navigationBarColor = prevNavColor
                                 activity.window.statusBarColor = prevStatusColor
                             },
@@ -402,31 +407,6 @@ fun DetailScreen(
                         }
                     }
                 }
-            }
-        }
-    }
-
-    // ─── Network error overlay ────────────────────────
-    if (showNetworkError) {
-        LaunchedEffect(Unit) {
-            kotlinx.coroutines.delay(2500)
-            showNetworkError = false
-        }
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Surface(
-                shape = RoundedCornerShape(8.dp),
-                color = MaterialTheme.colorScheme.inverseSurface,
-                shadowElevation = 6.dp
-            ) {
-                Text(
-                    stringResource(R.string.network_error),
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 14.dp),
-                    color = MaterialTheme.colorScheme.inverseOnSurface,
-                    style = MaterialTheme.typography.bodyLarge
-                )
             }
         }
     }
@@ -481,8 +461,12 @@ fun DetailScreen(
                             })
                         },
                         onNetworkError = {
-                            // Instead of hiding the dialog, transition to timeout state
+                            // Trigger timeout UI — user can choose to go back
                             adLoadingTimedOut = true
+                        },
+                        onAdStarted = {
+                            // Ad started playing — hide countdown, show black screen
+                            adStarted = true
                         }
                     )
                 }) {

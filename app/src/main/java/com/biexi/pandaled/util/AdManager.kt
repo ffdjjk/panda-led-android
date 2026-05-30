@@ -14,7 +14,7 @@ object AdManager {
     private var initialized = false
 
     /** Load ad, then show it. Retries on non-network errors. */
-    fun loadAndShow(activity: Activity, onDismissed: () -> Unit, onNetworkError: () -> Unit) {
+    fun loadAndShow(activity: Activity, onDismissed: () -> Unit, onNetworkError: () -> Unit, onAdStarted: () -> Unit = {}) {
         if (!DebugConfig.enableAds()) {
             android.os.Handler(activity.mainLooper).postDelayed({
                 onDismissed()
@@ -24,14 +24,14 @@ object AdManager {
         if (!initialized) {
             com.google.android.gms.ads.MobileAds.initialize(activity) {
                 initialized = true
-                loadInternal(activity, onDismissed, onNetworkError)
+                loadInternal(activity, onDismissed, onNetworkError, onAdStarted)
             }
         } else {
-            loadInternal(activity, onDismissed, onNetworkError)
+            loadInternal(activity, onDismissed, onNetworkError, onAdStarted)
         }
     }
 
-    private fun loadInternal(activity: Activity, onDismissed: () -> Unit, onNetworkError: () -> Unit) {
+    private fun loadInternal(activity: Activity, onDismissed: () -> Unit, onNetworkError: () -> Unit, onAdStarted: () -> Unit) {
         InterstitialAd.load(
             activity,
             INTERSTITIAL_UNIT_ID,
@@ -47,11 +47,12 @@ object AdManager {
                             if (error.code == 2) {
                                 onNetworkError()
                             } else {
-                                loadInternal(activity, onDismissed, onNetworkError)
+                                loadInternal(activity, onDismissed, onNetworkError, onAdStarted)
                             }
                         }
 
                         override fun onAdShowedFullScreenContent() {
+                            onAdStarted()
                         }
 
                         override fun onAdImpression() {
@@ -66,7 +67,7 @@ object AdManager {
                     if (error.code == 2) {
                         onNetworkError()
                     } else {
-                        loadInternal(activity, onDismissed, onNetworkError)
+                        loadInternal(activity, onDismissed, onNetworkError, onAdStarted)
                     }
                 }
             }
