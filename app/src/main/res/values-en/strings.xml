@@ -196,4 +196,12 @@
     <string name="subscribe_per_month_prefix"></string>
     <string name="subscribe_or">or</string>
     <string name="subscribe_error_unavailable">Unable to start purchase. Please try again later.</string>
+    <string name="subscribe_error_user_canceled">You cancelled the payment (USER_CANCELED)</string>
+    <string name="subscribe_error_service_unavailable">Service unavailable (SERVICE_UNAVAILABLE)</string>
+    <string name="subscribe_error_billing_unavailable">Billing unavailable (BILLING_UNAVAILABLE)</string>
+    <string name="subscribe_error_item_unavailable">Item unavailable (ITEM_UNAVAILABLE)</string>
+    <string name="subscribe_error_developer_error">Unable to start purchase (DEVELOPER_ERROR)</string>
+    <string name="subscribe_error_general">Unable to start purchase (ERROR)</string>
+    <string name="subscribe_error_restore_not_owned">No subscription found. (ITEM_NOT_OWNED)</string>
+    <string name="subscribe_contact">Have questions? Contact us on Discord!</string>
 </resources>

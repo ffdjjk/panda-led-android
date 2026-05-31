@@ -14,33 +14,189 @@ import com.android.billingclient.api.ProductDetailsResponseListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryProductDetailsResult
 import com.android.billingclient.api.QueryPurchasesParams
+import com.biexi.pandaled.BuildConfig
 import com.biexi.pandaled.PandaLedApp
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-object BillingManager {
+// ═══════════════════════════════════════════════════════════
+//  ISubscribeManager – subscribe 接口
+// ═══════════════════════════════════════════════════════════
 
-    private const val TAG = "BillingManager"
+interface ISubscribeManager {
+    val isSubscribed: StateFlow<Boolean>
+    val subscriptionPrice: StateFlow<String?>
+    val restoreError: StateFlow<Int?>
+    val restoreCounter: StateFlow<Int>
 
-    const val PRODUCT_ID = "premium_monthly"
-    private const val BASE_PLAN_ID = "monthly-autorenew"
+    fun initialize()
+    fun querySubscriptionStatus()
+    fun queryProductDetails()
+    fun restoreSubscription()
+    fun launchSubscription(activity: Activity): BillingResult?
+    fun acknowledgePurchase(): BillingResult?
+}
 
-    lateinit var billingClient: BillingClient
-        private set
+// ═══════════════════════════════════════════════════════════
+//  DebugSubscribeManager – 调试用，模拟所有行为
+// ═══════════════════════════════════════════════════════════
 
-    /** Whether the user currently holds an active subscription. */
+class DebugSubscribeManager : ISubscribeManager {
+
+    companion object {
+        private const val TAG = "DebugSubscribe"
+    }
+
+    // ═════════════════════════════════════════════════════════
+    //  调试开关：改这两个值来模拟不同场景（影响所有方法）
+    // ═════════════════════════════════════════════════════════
+    /*
+     * 生产环境可能的状态：
+     *
+     * ── mockResponseCode（BillingResponseCode）──
+     *   影响 querySubscriptionStatus / launchSubscription / restoreSubscription
+     *   OK (0)                   → 查询/购买成功 ✅
+     *   ITEM_ALREADY_OWNED (7)   → 已拥有 ✅（等同于 OK）
+     *   USER_CANCELED (1)        → 用户取消 ❌
+     *   SERVICE_UNAVAILABLE (2)  → 服务不可用 ❌
+     *   BILLING_UNAVAILABLE (3)  → 计费不可用 ❌
+     *   ITEM_UNAVAILABLE (4)     → 商品不可用 ❌
+     *   DEVELOPER_ERROR (5)      → 开发者错误 ❌
+     *   ERROR (6)                → 一般错误 ❌
+     *   ITEM_NOT_OWNED (8)       → 未拥有 ❌
+     *
+     * ── mockHasActiveSubscription（仅 responseCode == OK 时生效）──
+     *   ITEM_ALREADY_OWNED 时忽略此值，直接设为已订阅
+     *   querySubscriptionStatus 时如果 OK，用这个值设置 _isSubscribed
+     *   true  → 已订阅 (ACTIVE)
+     *   false → 未订阅 (INACTIVE)
+     *   常见为 false 的原因：
+     *     - 从未购买过
+     *     - 订阅已过期
+     *     - purchaseState == PENDING（待定中）
+     *     - 购买未确认（!isAcknowledged）
+     *     - purchaseList 为空
+     *     - purchase.products 不包含 premium_monthly
+     *
+     * ── billingClient 状态（生产环境）──
+     *   ::billingClient.isInitialized == false → 直接 return，_isSubscribed 不变
+     *
+     * ── mockAcknowledgeSucceeds ──
+     *   模拟 acknowledgePurchase() 的返回值
+     *   true  → 确认成功，触发 querySubscriptionStatus()
+     *   false → 确认失败，返回 ERROR
+     */
+    private val mockResponseCode = BillingClient.BillingResponseCode.OK
+    private val mockHasActiveSubscription = false
+    private val mockAcknowledgeSucceeds = true
+    // ═════════════════════════════════════════════════════════
+
     private val _isSubscribed = MutableStateFlow(false)
-    val isSubscribed: StateFlow<Boolean> = _isSubscribed.asStateFlow()
+    override val isSubscribed: StateFlow<Boolean> = _isSubscribed.asStateFlow()
 
-    /** Formatted subscription price (e.g. "¥35.00" or "$4.99"), or null if not yet loaded. */
     private val _subscriptionPrice = MutableStateFlow<String?>(null)
-    val subscriptionPrice: StateFlow<String?> = _subscriptionPrice.asStateFlow()
+    override val subscriptionPrice: StateFlow<String?> = _subscriptionPrice.asStateFlow()
 
-    /** Product details for the subscription, available after successful connection. */
+    private val _restoreError = MutableStateFlow<Int?>(null)
+    override val restoreError: StateFlow<Int?> = _restoreError.asStateFlow()
+
+    private val _restoreCounter = MutableStateFlow(0)
+    override val restoreCounter: StateFlow<Int> = _restoreCounter.asStateFlow()
+
+    private fun isMockSuccess(): Boolean =
+        mockResponseCode == BillingClient.BillingResponseCode.OK ||
+        mockResponseCode == BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED
+
+    override fun initialize() {
+        Log.d(TAG, "Debug mode – querying mock subscription status")
+        querySubscriptionStatus()
+    }
+
+    override fun querySubscriptionStatus() {
+        if (isMockSuccess()) {
+            // ITEM_ALREADY_OWNED → always subscribed; OK → controlled by flag
+            val subscribed = mockResponseCode == BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED
+                || mockHasActiveSubscription
+            _isSubscribed.value = subscribed
+            Log.d(TAG, "querySubscriptionStatus → response=$mockResponseCode, subscribed=$subscribed")
+        } else {
+            _isSubscribed.value = false
+            Log.d(TAG, "querySubscriptionStatus → response=$mockResponseCode, subscribed=false")
+        }
+    }
+
+    override fun queryProductDetails() {
+        _subscriptionPrice.value = "¥8.88"
+        Log.d(TAG, "queryProductDetails → price=${_subscriptionPrice.value}")
+    }
+
+    override fun restoreSubscription() {
+        _restoreCounter.value++
+        if (isMockSuccess()) {
+            _isSubscribed.value = true
+            _restoreError.value = null
+            Log.d(TAG, "restoreSubscription → response=$mockResponseCode, subscribed=true")
+        } else {
+            _restoreError.value = BillingManager.RESTORE_ERROR_NOT_OWNED
+            Log.d(TAG, "restoreSubscription → response=$mockResponseCode, restore failed")
+        }
+    }
+
+    override fun launchSubscription(activity: Activity): BillingResult? {
+        if (isMockSuccess()) {
+            Log.d(TAG, "launchSubscription → response=$mockResponseCode, flow launched")
+            // Simulate PurchasesUpdatedListener → handlePurchase → acknowledge
+            acknowledgePurchase()
+            return BillingResult.newBuilder()
+                .setResponseCode(BillingClient.BillingResponseCode.OK)
+                .build()
+        } else {
+            Log.d(TAG, "launchSubscription → response=$mockResponseCode, purchase failed")
+            return BillingResult.newBuilder()
+                .setResponseCode(mockResponseCode)
+                .build()
+        }
+    }
+
+    // Simulates PurchasesUpdatedListener → handlePurchase → acknowledge → query
+    override fun acknowledgePurchase(): BillingResult? {
+        if (mockAcknowledgeSucceeds) {
+            _isSubscribed.value = true
+            Log.d(TAG, "acknowledgePurchase → OK, subscribed=true")
+            return BillingResult.newBuilder()
+                .setResponseCode(BillingClient.BillingResponseCode.OK)
+                .build()
+        } else {
+            Log.d(TAG, "acknowledgePurchase → failed")
+            return BillingResult.newBuilder()
+                .setResponseCode(BillingClient.BillingResponseCode.ERROR)
+                .build()
+        }
+    }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  ProductionSubscribeManager – 正式 Google Play Billing
+// ═══════════════════════════════════════════════════════════
+
+class ProductionSubscribeManager : ISubscribeManager {
+
+    companion object {
+        private const val TAG = "BillingManager"
+        const val PRODUCT_ID = "premium_monthly"
+        private const val BASE_PLAN_ID = "monthly-autorenew"
+    }
+
+    private lateinit var billingClient: BillingClient
+
+    private val _isSubscribed = MutableStateFlow(false)
+    override val isSubscribed: StateFlow<Boolean> = _isSubscribed.asStateFlow()
+
+    private val _subscriptionPrice = MutableStateFlow<String?>(null)
+    override val subscriptionPrice: StateFlow<String?> = _subscriptionPrice.asStateFlow()
+
     private var subscriptionProductDetails: ProductDetails? = null
-
-    /** Offer token for the base plan we want to sell. */
     private var basePlanOfferToken: String? = null
 
     private val purchasesUpdatedListener = PurchasesUpdatedListener { billingResult, purchases ->
@@ -56,12 +212,13 @@ object BillingManager {
         }
     }
 
-    fun initialize() {
-        if (!DebugConfig.enableBilling()) {
-            Log.d(TAG, "Billing disabled via debug config, skipping initialization")
-            return
-        }
+    private val _restoreError = MutableStateFlow<Int?>(null)
+    override val restoreError: StateFlow<Int?> = _restoreError.asStateFlow()
 
+    private val _restoreCounter = MutableStateFlow(0)
+    override val restoreCounter: StateFlow<Int> = _restoreCounter.asStateFlow()
+
+    override fun initialize() {
         billingClient = BillingClient.newBuilder(PandaLedApp.instance)
             .setListener(purchasesUpdatedListener)
             .enablePendingPurchases(
@@ -89,9 +246,7 @@ object BillingManager {
         })
     }
 
-    // ─── Query active subscription ───────────────────────
-
-    fun querySubscriptionStatus() {
+    override fun querySubscriptionStatus() {
         if (!::billingClient.isInitialized) return
 
         billingClient.queryPurchasesAsync(
@@ -111,9 +266,7 @@ object BillingManager {
         }
     }
 
-    // ─── Query product details ───────────────────────────
-
-    fun queryProductDetails() {
+    override fun queryProductDetails() {
         if (!::billingClient.isInitialized) return
         val params = QueryProductDetailsParams.newBuilder()
             .setProductList(
@@ -141,7 +294,6 @@ object BillingManager {
                         Log.d(TAG, "subscriptionOfferDetails size=${offers?.size}, basePlanIds=${offers?.map { it.basePlanId }}")
                         val offer = offers?.find { it.basePlanId == BASE_PLAN_ID }
                         basePlanOfferToken = offer?.offerToken
-                        // Extract formatted price from the first pricing phase
                         val phases = offer?.pricingPhases?.pricingPhaseList
                         _subscriptionPrice.value = phases?.firstOrNull()?.formattedPrice
                         Log.d(TAG, "Product details loaded, offerToken=${if (basePlanOfferToken != null) "found" else "NOT FOUND"}, phaseCount=${phases?.size}, price=${_subscriptionPrice.value}")
@@ -153,13 +305,35 @@ object BillingManager {
         )
     }
 
-    // ─── Launch subscription purchase ────────────────────
+    override fun restoreSubscription() {
+        if (!::billingClient.isInitialized) {
+            _restoreError.value = BillingManager.RESTORE_ERROR_GENERIC
+            _restoreCounter.value++
+            return
+        }
+        billingClient.queryPurchasesAsync(
+            QueryPurchasesParams.newBuilder()
+                .setProductType(BillingClient.ProductType.SUBS)
+                .build()
+        ) { billingResult, purchaseList ->
+            if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                val active = purchaseList.any { purchase ->
+                    purchase.products.contains(PRODUCT_ID) &&
+                        purchase.purchaseState == Purchase.PurchaseState.PURCHASED &&
+                        purchase.isAcknowledged
+                }
+                _isSubscribed.value = active
+                _restoreError.value = if (active) null else BillingManager.RESTORE_ERROR_NOT_OWNED
+                Log.d(TAG, "Restore: ${if (active) "ACTIVE" else "NOT OWNED"}")
+            } else {
+                _restoreError.value = BillingManager.RESTORE_ERROR_GENERIC
+                Log.w(TAG, "Restore query failed: ${billingResult.debugMessage}")
+            }
+            _restoreCounter.value++
+        }
+    }
 
-    /**
-     * Launch the Google Play billing flow for the monthly subscription.
-     * @return BillingResult from launchBillingFlow, or null if product details not ready.
-     */
-    fun launchSubscription(activity: Activity): BillingResult? {
+    override fun launchSubscription(activity: Activity): BillingResult? {
         val productDetails = subscriptionProductDetails
         val offerToken = basePlanOfferToken
 
@@ -183,7 +357,14 @@ object BillingManager {
         return billingClient.launchBillingFlow(activity, flowParams)
     }
 
-    // ─── Handle successful purchase ──────────────────────
+    override fun acknowledgePurchase(): BillingResult? {
+        // Handled internally by PurchasesUpdatedListener → handlePurchase()
+        // This method is exposed for interface completeness / debug mock symmetry
+        querySubscriptionStatus()
+        return BillingResult.newBuilder()
+            .setResponseCode(BillingClient.BillingResponseCode.OK)
+            .build()
+    }
 
     private fun handlePurchase(purchase: Purchase) {
         if (!purchase.isAcknowledged) {
@@ -203,4 +384,56 @@ object BillingManager {
             querySubscriptionStatus()
         }
     }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  BillingManager – 单例门面 (Facade)
+//  BuildConfig.DEBUG → DebugSubscribeManager
+//  !BuildConfig.DEBUG  → ProductionSubscribeManager
+// ═══════════════════════════════════════════════════════════
+
+object BillingManager {
+
+    /** BillingResponseCode.OK 的简写，方便外部判断 */
+    const val BILLING_OK = BillingClient.BillingResponseCode.OK
+
+    /** restoreError 错误码：未拥有订阅（对应生产环境 ITEM_NOT_OWNED = 8） */
+    const val RESTORE_ERROR_NOT_OWNED = 8
+
+    /** restoreError 错误码：通用恢复失败 */
+    const val RESTORE_ERROR_GENERIC = -1
+
+    private val instance: ISubscribeManager by lazy {
+        if (BuildConfig.DEBUG) {
+            DebugSubscribeManager()
+        } else {
+            ProductionSubscribeManager()
+        }
+    }
+
+    val isSubscribed: StateFlow<Boolean>
+        get() = instance.isSubscribed
+
+    val subscriptionPrice: StateFlow<String?>
+        get() = instance.subscriptionPrice
+
+    val restoreError: StateFlow<Int?>
+        get() = instance.restoreError
+
+    val restoreCounter: StateFlow<Int>
+        get() = instance.restoreCounter
+
+    fun initialize() = instance.initialize()
+
+    fun querySubscriptionStatus() = instance.querySubscriptionStatus()
+
+    fun queryProductDetails() = instance.queryProductDetails()
+
+    fun restoreSubscription() = instance.restoreSubscription()
+
+    fun launchSubscription(activity: Activity): BillingResult? =
+        instance.launchSubscription(activity)
+
+    fun acknowledgePurchase(): BillingResult? =
+        instance.acknowledgePurchase()
 }

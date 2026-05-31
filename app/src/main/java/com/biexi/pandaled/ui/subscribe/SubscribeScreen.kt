@@ -1,11 +1,13 @@
 package com.biexi.pandaled.ui.subscribe
 
 import android.app.Activity
+import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
 import android.net.Uri
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,7 +20,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
@@ -33,6 +37,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.biexi.pandaled.R
 import com.biexi.pandaled.util.BillingManager
+import com.android.billingclient.api.BillingClient
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,7 +50,29 @@ fun SubscribeScreen(
     val context = LocalContext.current
     val isSubscribed by BillingManager.isSubscribed.collectAsState()
     var isPurchasing by remember { mutableStateOf(false) }
-    var purchaseError by remember { mutableStateOf<String?>(null) }
+    var errorDesc by remember { mutableStateOf<String?>(null) }
+
+    // Observe restore results via counter → show error alongside subscribe errors
+    // Skip initial emission to avoid stale errors from previous navigation
+    val restoreCounter by BillingManager.restoreCounter.collectAsState()
+    val restoreError by BillingManager.restoreError.collectAsState()
+    var skipInitialRestore by remember { mutableStateOf(true) }
+    LaunchedEffect(restoreCounter) {
+        if (skipInitialRestore) {
+            skipInitialRestore = false
+            return@LaunchedEffect
+        }
+        errorDesc = if (restoreError != null) {
+            when (restoreError) {
+                BillingManager.RESTORE_ERROR_NOT_OWNED ->
+                    context.resources.getString(R.string.subscribe_error_restore_not_owned)
+                else ->
+                    context.resources.getString(R.string.subscribe_error_unavailable)
+            }
+        } else {
+            null
+        }
+    }
 
     // Reset purchasing state when user returns from Google Play billing UI
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -80,7 +107,10 @@ fun SubscribeScreen(
                     }
                 },
                 actions = {
-                    TextButton(onClick = { BillingManager.querySubscriptionStatus() }) {
+                    TextButton(onClick = {
+                        errorDesc = null
+                        BillingManager.restoreSubscription()
+                    }) {
                         Text(
                             stringResource(R.string.subscribe_restore_hint),
                             style = MaterialTheme.typography.labelSmall,
@@ -231,12 +261,37 @@ fun SubscribeScreen(
                 Button(
                     onClick = {
                         isPurchasing = true
-                        purchaseError = null
+                        errorDesc = null
                         val result = BillingManager.launchSubscription(context as Activity)
-                        if (result == null) {
+                        if (result == null || result.responseCode != BillingManager.BILLING_OK) {
                             isPurchasing = false
-                            purchaseError = context.resources.getString(R.string.subscribe_error_unavailable)
+                            errorDesc = when (result?.responseCode) {
+                                BillingClient.BillingResponseCode.USER_CANCELED ->
+                                    context.resources.getString(R.string.subscribe_error_user_canceled)
+                                BillingClient.BillingResponseCode.SERVICE_UNAVAILABLE ->
+                                    context.resources.getString(R.string.subscribe_error_service_unavailable)
+                                BillingClient.BillingResponseCode.BILLING_UNAVAILABLE ->
+                                    context.resources.getString(R.string.subscribe_error_billing_unavailable)
+                                BillingClient.BillingResponseCode.ITEM_UNAVAILABLE ->
+                                    context.resources.getString(R.string.subscribe_error_item_unavailable)
+                                BillingClient.BillingResponseCode.DEVELOPER_ERROR ->
+                                    context.resources.getString(R.string.subscribe_error_developer_error)
+                                BillingClient.BillingResponseCode.ERROR ->
+                                    context.resources.getString(R.string.subscribe_error_general)
+                                BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED -> {
+                                    // Already subscribed — refresh status to confirm
+                                    BillingManager.querySubscriptionStatus()
+                                    null
+                                }
+                                null ->
+                                    context.resources.getString(R.string.subscribe_error_unavailable)
+                                else ->
+                                    context.resources.getString(R.string.subscribe_error_unavailable)
+                            }
                         }
+                        // On OK: stay in isPurchasing=true, wait for
+                        // PurchasesUpdatedListener (production) or internal
+                        // acknowledgePurchase (debug) to set isSubscribed → navigate away
                     },
                     shape = RoundedCornerShape(14.dp),
                     enabled = !isPurchasing
@@ -258,8 +313,8 @@ fun SubscribeScreen(
             }
             }
 
-            // ─── Purchase error ────────────────────
-            purchaseError?.let { error ->
+            // ─── Error message ────────────────────
+            errorDesc?.let { error ->
                 Spacer(Modifier.height(10.dp))
                 Text(
                     error,
@@ -294,6 +349,31 @@ fun SubscribeScreen(
             }
 
             Spacer(Modifier.height(20.dp))
+
+            // ─── Discord contact ─────────────────
+            val discordColor = Color(0xFF5865F2)
+            Row(
+                modifier = Modifier
+                    .clickable {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://discord.gg/KFDhTS4Pnt"))
+                        context.startActivity(intent)
+                    }
+                    .padding(horizontal = 24.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_discord),
+                    contentDescription = "Discord",
+                    tint = discordColor,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    stringResource(R.string.subscribe_contact),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
 
             Spacer(Modifier.height(16.dp))
         }

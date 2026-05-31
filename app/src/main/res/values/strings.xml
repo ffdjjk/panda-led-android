@@ -195,5 +195,13 @@
     <string name="subscribe_restore_hint">如果已购买, 点此恢复</string>
     <string name="subscribe_per_month_prefix">每月</string>
     <string name="subscribe_or">或者</string>
-    <string name="subscribe_error_unavailable">暂时无法启动购买，请稍后重试</string>
+    <string name="subscribe_error_unavailable">暂时无法购买，请稍后重试</string>
+    <string name="subscribe_error_user_canceled">您取消了支付(USER_CANCELED)</string>
+    <string name="subscribe_error_service_unavailable">服务不可用(SERVICE_UNAVAILABLE)</string>
+    <string name="subscribe_error_billing_unavailable">计费不可用(BILLING_UNAVAILABLE)</string>
+    <string name="subscribe_error_item_unavailable">商品不可用(ITEM_UNAVAILABLE)</string>
+    <string name="subscribe_error_developer_error">无法购买(DEVELOPER_ERROR)</string>
+    <string name="subscribe_error_general">无法购买(ERROR)</string>
+    <string name="subscribe_error_restore_not_owned">您没有购买订阅(ITEM_NOT_OWNED)</string>
+    <string name="subscribe_contact">如有任何疑问, 请联系我们!</string>
 </resources>

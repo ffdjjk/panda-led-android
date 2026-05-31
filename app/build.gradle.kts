@@ -13,7 +13,7 @@ android {
         applicationId = "com.biexi.pandaled"
         minSdk = 28
         targetSdk = 36
-        versionCode = 7
+        versionCode = 9
         versionName = "1.0.0"
     }
 
@@ -29,6 +29,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     compileOptions {
