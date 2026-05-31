@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.biexi.pandaled.data.model.*
+import com.biexi.pandaled.util.BillingManager
 import kotlinx.coroutines.delay
 import com.biexi.pandaled.ui.detail.components.*
 
@@ -34,6 +35,9 @@ fun DetailScreen(
     projectId: String,
     onNavigateBack: () -> Unit,
     onNavigateToFullScreen: () -> Unit,
+    onNavigateToSubscribe: () -> Unit = {},
+    subscribeActionResult: String? = null,
+    onClearSubscribeResult: () -> Unit = {},
     viewModel: DetailViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -65,12 +69,48 @@ fun DetailScreen(
     }
 
     var showMenu by remember { mutableStateOf(false) }
-    var showSubscribeDialog by remember { mutableStateOf(false) }
     var showAdLoading by remember { mutableStateOf(false) }
     var adLoadingInProgress by remember { mutableStateOf(false) }
     var adLoadingCountdown by remember { mutableIntStateOf(10) }
     var adLoadingTimedOut by remember { mutableStateOf(false) }
     var adStarted by remember { mutableStateOf(false) }
+
+    // Activity refs for ad-loading overlay (declared early so play button can use them)
+    val activity = context as android.app.Activity
+    val prevNavColor = activity.window.navigationBarColor
+    val prevStatusColor = activity.window.statusBarColor
+
+    // Handle result from SubscribeScreen (via savedStateHandle)
+    LaunchedEffect(subscribeActionResult) {
+        when (subscribeActionResult) {
+            "start_with_ad" -> {
+                adLoadingInProgress = true
+                showAdLoading = true
+                com.biexi.pandaled.util.AdManager.loadAndShow(
+                    activity,
+                    onDismissed = {
+                        showAdLoading = false
+                        viewModel.launchFullScreen(context, onComplete = {
+                            adLoadingInProgress = false
+                            activity.window.navigationBarColor = prevNavColor
+                            activity.window.statusBarColor = prevStatusColor
+                        })
+                    },
+                    onNetworkError = {
+                        adLoadingTimedOut = true
+                    },
+                    onAdStarted = {
+                        adStarted = true
+                    }
+                )
+                onClearSubscribeResult()
+            }
+            "subscribed" -> {
+                viewModel.launchFullScreen(context)
+                onClearSubscribeResult()
+            }
+        }
+    }
 
 
     Scaffold(
@@ -97,14 +137,18 @@ fun DetailScreen(
                     }
                 },
                 actions = {
-                    // Play button → subscribe dialog → fullscreen
+                    // Play button → check subscription or navigate to subscribe
+                    val isSubscribed by BillingManager.isSubscribed.collectAsState()
                     val toastMissingText = stringResource(R.string.toast_missing)
                     IconButton(onClick = {
                         if (state.missingAssets.isNotEmpty()) {
                             android.widget.Toast.makeText(context, toastMissingText, android.widget.Toast.LENGTH_SHORT).show()
                             viewModel.selectTab(1) // switch to scenes tab
+                        } else if (isSubscribed) {
+                            // Subscribed user: skip ad, go directly to fullscreen
+                            viewModel.launchFullScreen(context)
                         } else {
-                            showSubscribeDialog = true
+                            onNavigateToSubscribe()
                         }
                     }) {
                         Icon(Icons.Filled.PlayCircle, contentDescription = stringResource(R.string.detail_fullscreen), modifier = Modifier.size(32.dp))
@@ -346,9 +390,6 @@ fun DetailScreen(
     }
 
     // ─── Loading overlay during ad load ───────────────
-    val activity = context as android.app.Activity
-    val prevNavColor = activity.window.navigationBarColor
-    val prevStatusColor = activity.window.statusBarColor
     if (showAdLoading) {
         activity.window.navigationBarColor = android.graphics.Color.BLACK
         activity.window.statusBarColor = android.graphics.Color.BLACK
@@ -421,73 +462,9 @@ fun DetailScreen(
                 }
             }
         }
-    }
-
-    // ─── Subscribe / Start dialog ──────────────────────
-    if (showSubscribeDialog) {
-        AlertDialog(
-            onDismissRequest = { showSubscribeDialog = false },
-            title = {
-                Text(
-                    stringResource(R.string.subscribe_title),
-                    fontWeight = FontWeight.Bold
-                )
-            },
-            text = {
-                Text(stringResource(R.string.subscribe_hint))
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                            showSubscribeDialog = false
-                        viewModel.launchFullScreen(context)
-                    },
-                    enabled = false,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
-                        disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-                    )
-                ) {
-                    Text(
-                        stringResource(R.string.subscribe_cta),
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    if (adLoadingInProgress) return@TextButton
-                    adLoadingInProgress = true
-                    showSubscribeDialog = false
-                    showAdLoading = true
-                    com.biexi.pandaled.util.AdManager.loadAndShow(
-                        context as android.app.Activity,
-                        onDismissed = {
-                            // 立即关闭loading遮罩，避免广告关闭后短暂闪现
-                            showAdLoading = false
-                            viewModel.launchFullScreen(context, onComplete = {
-                                adLoadingInProgress = false
-                                activity.window.navigationBarColor = prevNavColor
-                                activity.window.statusBarColor = prevStatusColor
-                            })
-                        },
-                        onNetworkError = {
-                            // Trigger timeout UI — user can choose to go back
-                            adLoadingTimedOut = true
-                        },
-                        onAdStarted = {
-                            // Ad started playing — hide countdown, show black screen
-                            adStarted = true
-                        }
-                    )
-                }) {
-                    Text(stringResource(R.string.start_directly))
-                }
-            }
-        )
-    }
+        }
 }
+
 
 // ─── Missing Asset Warning Bar ───────────────────────────
 

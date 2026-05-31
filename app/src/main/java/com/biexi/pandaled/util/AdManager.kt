@@ -24,9 +24,9 @@ object AdManager {
         Log.d(TAG, "Ad request cancelled (new requestId=$currentRequestId)")
     }
 
-    /** Load ad, then show it. Retries on non-network errors. */
+    /** Load ad, then show it. Skips ad entirely if user is subscribed. Retries on non-network errors. */
     fun loadAndShow(activity: Activity, onDismissed: () -> Unit, onNetworkError: () -> Unit, onAdStarted: () -> Unit = {}) {
-        if (!DebugConfig.enableAds()) {
+        if (!DebugConfig.enableAds() || BillingManager.isSubscribed.value) {
             android.os.Handler(activity.mainLooper).postDelayed({
                 onDismissed()
             }, 1500)

@@ -173,10 +173,7 @@
     <string name="qr_import_error">Import failed: invalid QR content</string>
     <string name="qr_import_success">Import successful</string>
     <string name="missing_image">Missing Asset</string>
-    <string name="subscribe_title">Subscribe to Remove Ads</string>
-    <string name="subscribe_cta">Subscribe to Remove Ads</string>
-    <string name="subscribe_hint">Subscribe for ad-free, unlimited access.</string>
-    <string name="start_directly">Start Directly</string>
+    <string name="start_directly">Watch ad then play</string>
     <string name="loading_ads">Loading ad…</string>
     <string name="network_error">Please check your network</string>
     <string name="ad_countdown">Waiting %ds</string>
@@ -184,4 +181,19 @@
     <string name="ad_go_back">Go Back</string>
     <string name="toast_missing">Please complete all content</string>
     <string name="missing_assets">Missing — %s</string>
+
+    <!-- Subscribe -->
+    <string name="subscribe_title">PandaLED Premium</string>
+    <string name="subscribe_price_loading">Loading price…</string>
+    <string name="subscribe_benefit_adfree">No Ads</string>
+    <string name="subscribe_benefit_adfree_desc">Enjoy a clean experience without interstitial ads</string>
+    <string name="subscribe_benefit_full">🚀 Full Access</string>
+    <string name="subscribe_benefit_full_desc">Unlimited access to scene editing, fullscreen playback, and all features</string>
+    <string name="subscribe_benefit_cancel">Cancel Anytime</string>
+    <string name="subscribe_benefit_cancel_desc">This is a monthly subscription. You can cancel anytime.</string>
+    <string name="subscribe_cta">Subscribe Now</string>
+    <string name="subscribe_restore_hint">If already purchased, tap to restore</string>
+    <string name="subscribe_per_month_prefix"></string>
+    <string name="subscribe_or">or</string>
+    <string name="subscribe_error_unavailable">Unable to start purchase. Please try again later.</string>
 </resources>

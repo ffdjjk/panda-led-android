@@ -155,7 +155,8 @@ fun HomeScreen(
                         }
                         AndroidView(
                             factory = { viewCtx ->
-                                PlayerView(viewCtx).apply {
+                                (android.view.LayoutInflater.from(viewCtx)
+                                    .inflate(R.layout.view_video_player_texture, null) as PlayerView).apply {
                                     player = exoPlayer
                                     useController = false
                                 }
@@ -620,7 +621,8 @@ fun LogoOverlay(
         if (showVideo) {
             AndroidView(
                 factory = { viewCtx ->
-                    PlayerView(viewCtx).apply {
+                    (android.view.LayoutInflater.from(viewCtx)
+                        .inflate(R.layout.view_video_player_texture, null) as PlayerView).apply {
                         player = exoPlayer
                         useController = false
                         resizeMode = androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_FIT
