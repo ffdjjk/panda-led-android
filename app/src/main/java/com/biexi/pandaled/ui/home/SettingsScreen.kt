@@ -13,7 +13,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import android.app.Activity
 import androidx.appcompat.app.AppCompatDelegate
+import com.google.android.play.core.review.ReviewManagerFactory
 import androidx.core.os.LocaleListCompat
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -134,31 +136,82 @@ fun SettingsScreen(onBack: () -> Unit) {
                 }
             }
 
-            // ─── Cache ───────────────────────────────────
-            Text(stringResource(R.string.settings_cache), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-
-            val cacheSize = remember { calculateCacheSize(context) }
-            var cacheText by remember { mutableStateOf("计算中...") }
-            LaunchedEffect(Unit) {
-                cacheText = if (cacheSize <= 0) "0 B"
-                else when {
-                    cacheSize < 1024 -> "${cacheSize} B"
-                    cacheSize < 1024 * 1024 -> "${cacheSize / 1024} KB"
-                    else -> String.format("%.1f MB", cacheSize / (1024.0 * 1024.0))
+            // ─── Rate & Review ───────────────────────────
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        val manager = ReviewManagerFactory.create(context)
+                        val request = manager.requestReviewFlow()
+                        request.addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                val reviewInfo = task.result
+                                (context as? Activity)?.let { activity ->
+                                    manager.launchReviewFlow(activity, reviewInfo)
+                                }
+                            }
+                        }
+                    }
+                    .padding(vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        stringResource(R.string.settings_review),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        stringResource(R.string.settings_review_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    stringResource(R.string.settings_cache_unused) + ": $cacheText",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.weight(1f)
+                Icon(
+                    Icons.Default.OpenInNew,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(16.dp)
                 )
-                Button(onClick = {
-                    clearUnusedCache(context)
-                    cacheText = "0 B"
-                }) {
-                    Text(stringResource(R.string.settings_cache_clear))
+            }
+
+            // ─── Share ────────────────────────────────────
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.app_name))
+                            putExtra(Intent.EXTRA_TEXT, "https://play.google.com/store/apps/details?id=com.biexi.pandaled")
+                        }
+                        context.startActivity(Intent.createChooser(shareIntent, context.getString(R.string.settings_share)))
+                    }
+                    .padding(vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        stringResource(R.string.settings_share),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        stringResource(R.string.settings_share_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
+                Icon(
+                    Icons.Default.OpenInNew,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(16.dp)
+                )
             }
 
             // ─── Privacy Policy ───────────────────────────────────
@@ -188,6 +241,33 @@ fun SettingsScreen(onBack: () -> Unit) {
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(16.dp)
                 )
+            }
+
+            // ─── Cache ───────────────────────────────────
+            Text(stringResource(R.string.settings_cache), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+
+            val cacheSize = remember { calculateCacheSize(context) }
+            var cacheText by remember { mutableStateOf("计算中...") }
+            LaunchedEffect(Unit) {
+                cacheText = if (cacheSize <= 0) "0 B"
+                else when {
+                    cacheSize < 1024 -> "${cacheSize} B"
+                    cacheSize < 1024 * 1024 -> "${cacheSize / 1024} KB"
+                    else -> String.format("%.1f MB", cacheSize / (1024.0 * 1024.0))
+                }
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    stringResource(R.string.settings_cache_unused) + ": $cacheText",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(1f)
+                )
+                Button(onClick = {
+                    clearUnusedCache(context)
+                    cacheText = "0 B"
+                }) {
+                    Text(stringResource(R.string.settings_cache_clear))
+                }
             }
         }
     }

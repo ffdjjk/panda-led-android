@@ -100,4 +100,7 @@ dependencies {
 
     // Google subscribe
     implementation("com.android.billingclient:billing:9.0.0")
+
+    // Google feedback
+    implementation("com.google.android.play:review:2.0.2")
 }

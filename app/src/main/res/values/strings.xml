@@ -160,6 +160,10 @@
     <string name="settings_cache">缓存</string>
     <string name="settings_cache_unused">未使用缓存</string>
     <string name="settings_cache_clear">清理缓存</string>
+    <string name="settings_review">评价</string>
+    <string name="settings_review_desc">在Google Play为 PandaLED评分</string>
+    <string name="settings_share">分享应用</string>
+    <string name="settings_share_desc">把 PandaLED 分享给朋友</string>
     <string name="settings_privacy">隐私政策</string>
     <string name="settings_cache_calculating">计算中…</string>
 

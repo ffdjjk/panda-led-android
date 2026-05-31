@@ -159,6 +159,10 @@
     <string name="settings_cache">Cache</string>
     <string name="settings_cache_unused">Unused cache</string>
     <string name="settings_cache_clear">Clear</string>
+    <string name="settings_review">Rate &amp; Review</string>
+    <string name="settings_review_desc">Rate PandaLED on Google Play</string>
+    <string name="settings_share">Share App</string>
+    <string name="settings_share_desc">Share PandaLED with friends</string>
     <string name="settings_privacy">Privacy Policy</string>
     <string name="settings_cache_calculating">Calculating…</string>
 
