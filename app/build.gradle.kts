@@ -96,4 +96,7 @@ dependencies {
 
     // Google ads
     implementation("com.google.android.gms:play-services-ads:25.3.0")
+
+    // Google subscribe
+    implementation("com.android.billingclient:billing:9.0.0")
 }

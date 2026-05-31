@@ -1,3 +1,4 @@
 {
-    "enableAds": true
+    "enableAds": true,
+    "enableBilling": true
 }

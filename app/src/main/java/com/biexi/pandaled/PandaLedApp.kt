@@ -6,6 +6,7 @@ import androidx.core.os.LocaleListCompat
 import com.biexi.pandaled.data.local.AppDatabase
 import com.biexi.pandaled.data.local.JsonFileManager
 import com.biexi.pandaled.data.repository.ProjectRepository
+import com.biexi.pandaled.util.BillingManager
 import java.util.Locale
 
 class PandaLedApp : Application() {
@@ -43,6 +44,9 @@ class PandaLedApp : Application() {
 
         // Initialize Google Mobile Ads
         com.google.android.gms.ads.MobileAds.initialize(this) {}
+
+        // Initialize Google Play Billing
+        BillingManager.initialize()
 
         database = AppDatabase.getInstance(this)
         jsonFileManager = JsonFileManager(this)
