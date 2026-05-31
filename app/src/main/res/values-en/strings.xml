@@ -188,7 +188,7 @@
     <string name="missing_assets">Missing — %s</string>
 
     <!-- Subscribe -->
-    <string name="subscribe_title">PandaLED Premium</string>
+    <string name="subscribe_title">Starlight Premium</string>
     <string name="subscribe_price_loading">Loading price…</string>
     <string name="subscribe_benefit_adfree">No Ads</string>
     <string name="subscribe_benefit_adfree_desc">Enjoy a clean experience without interstitial ads</string>
@@ -201,7 +201,7 @@
     <string name="subscribe_price_format">%1$s/month</string>
     <string name="subscribe_or">or</string>
     <string name="subscribe_error_unavailable">Unable to start purchase. Please try again later.</string>
-    <string name="subscribe_error_user_canceled">You cancelled the payment (USER_CANCELED)</string>
+    <string name="subscribe_error_user_canceled">You canceled the payment (USER_CANCELED)</string>
     <string name="subscribe_error_service_unavailable">Service unavailable (SERVICE_UNAVAILABLE)</string>
     <string name="subscribe_error_billing_unavailable">Billing unavailable (BILLING_UNAVAILABLE)</string>
     <string name="subscribe_error_item_unavailable">Item unavailable (ITEM_UNAVAILABLE)</string>

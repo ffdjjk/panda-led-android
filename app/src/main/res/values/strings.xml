@@ -188,7 +188,7 @@
     <string name="missing_assets">待补充完整 — %s</string>
 
     <!-- Subscribe -->
-    <string name="subscribe_title">PandaLED 会员</string>
+    <string name="subscribe_title">星光会员</string>
     <string name="subscribe_price_loading">正在获取价格…</string>
     <string name="subscribe_benefit_adfree">免广告</string>
     <string name="subscribe_benefit_adfree_desc">畅享纯净体验，不再有插屏广告干扰</string>
