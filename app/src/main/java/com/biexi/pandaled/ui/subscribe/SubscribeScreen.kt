@@ -132,7 +132,6 @@ fun SubscribeScreen(
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-            Spacer(Modifier.height(12.dp))
 
             // ─── Logo (mp4) ──────────────────────
             val ctx = LocalContext.current
@@ -239,7 +238,7 @@ fun SubscribeScreen(
                 // Left: monthly price
                 if (price != null) {
                     Text(
-                        stringResource(R.string.subscribe_per_month_prefix) + price!!,
+                        stringResource(R.string.subscribe_price_format, price!!),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -348,8 +347,6 @@ fun SubscribeScreen(
                 Text(stringResource(R.string.start_directly))
             }
 
-            Spacer(Modifier.height(20.dp))
-
             // ─── Discord contact ─────────────────
             val discordColor = Color(0xFF5865F2)
             Row(
@@ -374,8 +371,6 @@ fun SubscribeScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-
-            Spacer(Modifier.height(16.dp))
         }
         }
     }

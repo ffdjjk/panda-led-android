@@ -196,9 +196,9 @@
     <string name="subscribe_benefit_full_desc">无限制使用场景编辑、全屏播放等全部功能</string>
     <string name="subscribe_benefit_cancel">随时取消</string>
     <string name="subscribe_benefit_cancel_desc">此为包月订阅, 您可以随时取消.</string>
-    <string name="subscribe_cta">立即订阅</string>
+    <string name="subscribe_cta">订阅</string>
     <string name="subscribe_restore_hint">如果已购买, 点此恢复</string>
-    <string name="subscribe_per_month_prefix">每月</string>
+    <string name="subscribe_price_format">每月%1$s</string>
     <string name="subscribe_or">或者</string>
     <string name="subscribe_error_unavailable">暂时无法购买，请稍后重试</string>
     <string name="subscribe_error_user_canceled">您取消了支付(USER_CANCELED)</string>

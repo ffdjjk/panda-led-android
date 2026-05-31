@@ -196,9 +196,9 @@
     <string name="subscribe_benefit_full_desc">Unlimited access to scene editing, fullscreen playback, and all features</string>
     <string name="subscribe_benefit_cancel">Cancel Anytime</string>
     <string name="subscribe_benefit_cancel_desc">This is a monthly subscription. You can cancel anytime.</string>
-    <string name="subscribe_cta">Subscribe Now</string>
+    <string name="subscribe_cta">Subscribe</string>
     <string name="subscribe_restore_hint">If already purchased, tap to restore</string>
-    <string name="subscribe_per_month_prefix"></string>
+    <string name="subscribe_price_format">%1$s / month</string>
     <string name="subscribe_or">or</string>
     <string name="subscribe_error_unavailable">Unable to start purchase. Please try again later.</string>
     <string name="subscribe_error_user_canceled">You cancelled the payment (USER_CANCELED)</string>
