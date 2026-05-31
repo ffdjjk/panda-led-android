@@ -160,6 +160,7 @@
     <string name="settings_cache">缓存</string>
     <string name="settings_cache_unused">未使用缓存</string>
     <string name="settings_cache_clear">清理缓存</string>
+    <string name="settings_privacy">隐私政策</string>
     <string name="settings_cache_calculating">计算中…</string>
 
     <!-- QR -->

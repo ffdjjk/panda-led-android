@@ -1,8 +1,12 @@
 package com.biexi.pandaled.ui.home
 
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -155,6 +159,35 @@ fun SettingsScreen(onBack: () -> Unit) {
                 }) {
                     Text(stringResource(R.string.settings_cache_clear))
                 }
+            }
+
+            // ─── Privacy Policy ───────────────────────────────────
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        val lang = prefs.getString("language", "") ?: ""
+                        val langSegment = if (lang == "zh") "zh" else "en"
+                        val url = "https://pandaled.biexi.com/#/privacy-policy/$langSegment"
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                        context.startActivity(intent)
+                    }
+                    .padding(vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    stringResource(R.string.settings_privacy),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Icon(
+                    Icons.Default.OpenInNew,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(16.dp)
+                )
             }
         }
     }

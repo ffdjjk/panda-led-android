@@ -159,6 +159,7 @@
     <string name="settings_cache">Cache</string>
     <string name="settings_cache_unused">Unused cache</string>
     <string name="settings_cache_clear">Clear</string>
+    <string name="settings_privacy">Privacy Policy</string>
     <string name="settings_cache_calculating">Calculating…</string>
 
     <!-- QR -->
