@@ -34,6 +34,9 @@ class PandaLedApp : Application() {
         AppCompatDelegate.setApplicationLocales(
             LocaleListCompat.create(locale)
         )
+        // Persist the resolved language so SettingsScreen and other components
+        // reflect the correct currently-active locale.
+        prefs.edit().putString("language", locale.language).apply()
 
         super.onCreate()
         instance = this

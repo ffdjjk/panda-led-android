@@ -14,7 +14,8 @@
 
     <application
         android:name=".PandaLedApp"
-        android:allowBackup="true"
+        android:allowBackup="false"
+        android:localeConfig="@xml/locales_config"
         android:usesCleartextTraffic="true"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher"

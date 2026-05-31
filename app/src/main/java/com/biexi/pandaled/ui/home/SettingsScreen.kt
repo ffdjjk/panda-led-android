@@ -21,10 +21,11 @@ fun SettingsScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("pandaled_prefs", android.content.Context.MODE_PRIVATE) }
 
-    val systemLang = java.util.Locale.getDefault().language
     var selectedLang by remember { mutableStateOf(prefs.getString("language", "") ?: "") }
-    // Default to en if not set
-    if (selectedLang.isEmpty()) selectedLang = "en"
+    // Fallback to system language if not set (matches PandaLedApp.onCreate behavior)
+    if (selectedLang.isEmpty()) {
+        selectedLang = if (java.util.Locale.getDefault().language.startsWith("zh")) "zh" else "en"
+    }
     var selectedColorMode by remember { mutableStateOf(prefs.getString("color_mode", "system") ?: "system") }
 
     var langExpanded by remember { mutableStateOf(false) }
