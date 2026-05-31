@@ -164,6 +164,7 @@
     <string name="settings_share">Share App</string>
     <string name="settings_share_desc">Share PandaLED with friends</string>
     <string name="settings_privacy">Privacy Policy</string>
+    <string name="settings_contact">Contact Us</string>
     <string name="settings_cache_calculating">Calculating…</string>
 
     <!-- QR -->

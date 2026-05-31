@@ -165,6 +165,7 @@
     <string name="settings_share">分享应用</string>
     <string name="settings_share_desc">把 PandaLED 分享给朋友</string>
     <string name="settings_privacy">隐私政策</string>
+    <string name="settings_contact">联系我们</string>
     <string name="settings_cache_calculating">计算中…</string>
 
     <!-- QR -->

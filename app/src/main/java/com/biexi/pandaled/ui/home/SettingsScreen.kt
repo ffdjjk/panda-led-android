@@ -13,6 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.Color
 import android.app.Activity
 import androidx.appcompat.app.AppCompatDelegate
 import com.google.android.play.core.review.ReviewManagerFactory
@@ -20,6 +22,8 @@ import androidx.core.os.LocaleListCompat
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.biexi.pandaled.R
+
+private val DiscordColor = Color(0xFF5865F2)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -240,6 +244,29 @@ fun SettingsScreen(onBack: () -> Unit) {
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(16.dp)
+                )
+            }
+
+            // ─── Contact ───────────────────────────────
+            Text(stringResource(R.string.settings_contact), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_discord),
+                    contentDescription = "Discord",
+                    tint = DiscordColor,
+                    modifier = Modifier
+                        .size(28.dp)
+                        .clickable {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://discord.gg/KFDhTS4Pnt"))
+                            context.startActivity(intent)
+                        }
                 )
             }
 
