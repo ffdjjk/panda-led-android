@@ -13,7 +13,7 @@ android {
         applicationId = "com.biexi.pandaled"
         minSdk = 28
         targetSdk = 36
-        versionCode = 3
+        versionCode = 4
         versionName = "1.0.0"
     }
 

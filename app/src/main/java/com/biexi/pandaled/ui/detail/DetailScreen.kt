@@ -52,6 +52,18 @@ fun DetailScreen(
         // Debounced auto-save could go here; for now manual save
     }
 
+    // Kill pending ad + restore window colors when user navigates away
+    DisposableEffect(Unit) {
+        val act = context as android.app.Activity
+        val originalNavColor = act.window.navigationBarColor
+        val originalStatusColor = act.window.statusBarColor
+        onDispose {
+            com.biexi.pandaled.util.AdManager.cancelCurrentAd()
+            act.window.navigationBarColor = originalNavColor
+            act.window.statusBarColor = originalStatusColor
+        }
+    }
+
     var showMenu by remember { mutableStateOf(false) }
     var showSubscribeDialog by remember { mutableStateOf(false) }
     var showAdLoading by remember { mutableStateOf(false) }
