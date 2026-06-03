@@ -167,6 +167,7 @@
     <string name="settings_privacy">隐私政策</string>
     <string name="settings_contact">联系我们</string>
     <string name="settings_cache_calculating">计算中…</string>
+    <string name="settings_version">应用版本</string>
 
     <!-- QR -->
     <string name="share">分享</string>

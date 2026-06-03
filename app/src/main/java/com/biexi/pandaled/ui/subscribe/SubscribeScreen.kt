@@ -158,7 +158,7 @@ fun SubscribeScreen(
                 }
             }
 
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(10.dp))
 
             // ─── Benefits ───────────────────────────
             Card(
@@ -187,20 +187,60 @@ fun SubscribeScreen(
                 }
             }
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(20.dp))
 
             // ─── Price + Subscribe ─────────────────
+            val doSubscribe = {
+                isPurchasing = true
+                errorDesc = null
+                val result = BillingManager.launchSubscription(context as Activity)
+                if (result == null || result.responseCode != BillingManager.BILLING_OK) {
+                    isPurchasing = false
+                    errorDesc = when (result?.responseCode) {
+                        BillingClient.BillingResponseCode.USER_CANCELED ->
+                            context.resources.getString(R.string.subscribe_error_user_canceled)
+                        BillingClient.BillingResponseCode.SERVICE_UNAVAILABLE ->
+                            context.resources.getString(R.string.subscribe_error_service_unavailable)
+                        BillingClient.BillingResponseCode.BILLING_UNAVAILABLE ->
+                            context.resources.getString(R.string.subscribe_error_billing_unavailable)
+                        BillingClient.BillingResponseCode.ITEM_UNAVAILABLE ->
+                            context.resources.getString(R.string.subscribe_error_item_unavailable)
+                        BillingClient.BillingResponseCode.DEVELOPER_ERROR ->
+                            context.resources.getString(R.string.subscribe_error_developer_error)
+                        BillingClient.BillingResponseCode.ERROR ->
+                            context.resources.getString(R.string.subscribe_error_general)
+                        BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED -> {
+                            // Already subscribed — refresh status to confirm
+                            BillingManager.querySubscriptionStatus()
+                            null
+                        }
+                        null ->
+                            context.resources.getString(R.string.subscribe_error_unavailable)
+                        else ->
+                            context.resources.getString(R.string.subscribe_error_unavailable)
+                    }
+                }
+                // On OK: stay in isPurchasing=true, wait for
+                // PurchasesUpdatedListener (production) or internal
+                // acknowledgePurchase (debug) to set isSubscribed → navigate away
+            }
+
             OutlinedCard(
+                onClick = doSubscribe,
+                enabled = !isPurchasing,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp),
                 shape = RoundedCornerShape(14.dp),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                colors = CardDefaults.outlinedCardColors(
+                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
+                )
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                        .padding(horizontal = 16.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -225,57 +265,28 @@ fun SubscribeScreen(
                         )
                     }
                 }
-                // Right: subscribe button
-                Button(
-                    onClick = {
-                        isPurchasing = true
-                        errorDesc = null
-                        val result = BillingManager.launchSubscription(context as Activity)
-                        if (result == null || result.responseCode != BillingManager.BILLING_OK) {
-                            isPurchasing = false
-                            errorDesc = when (result?.responseCode) {
-                                BillingClient.BillingResponseCode.USER_CANCELED ->
-                                    context.resources.getString(R.string.subscribe_error_user_canceled)
-                                BillingClient.BillingResponseCode.SERVICE_UNAVAILABLE ->
-                                    context.resources.getString(R.string.subscribe_error_service_unavailable)
-                                BillingClient.BillingResponseCode.BILLING_UNAVAILABLE ->
-                                    context.resources.getString(R.string.subscribe_error_billing_unavailable)
-                                BillingClient.BillingResponseCode.ITEM_UNAVAILABLE ->
-                                    context.resources.getString(R.string.subscribe_error_item_unavailable)
-                                BillingClient.BillingResponseCode.DEVELOPER_ERROR ->
-                                    context.resources.getString(R.string.subscribe_error_developer_error)
-                                BillingClient.BillingResponseCode.ERROR ->
-                                    context.resources.getString(R.string.subscribe_error_general)
-                                BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED -> {
-                                    // Already subscribed — refresh status to confirm
-                                    BillingManager.querySubscriptionStatus()
-                                    null
-                                }
-                                null ->
-                                    context.resources.getString(R.string.subscribe_error_unavailable)
-                                else ->
-                                    context.resources.getString(R.string.subscribe_error_unavailable)
-                            }
-                        }
-                        // On OK: stay in isPurchasing=true, wait for
-                        // PurchasesUpdatedListener (production) or internal
-                        // acknowledgePurchase (debug) to set isSubscribed → navigate away
-                    },
+                // Right: subscribe button (visual only — card handles click)
+                Surface(
                     shape = RoundedCornerShape(14.dp),
-                    enabled = !isPurchasing
+                    color = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
                 ) {
-                    if (isPurchasing) {
-                        CircularProgressIndicator(
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(20.dp),
-                            strokeWidth = 2.dp
-                        )
-                    } else {
-                        Text(
-                            stringResource(R.string.subscribe_cta),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
+                    Box(contentAlignment = Alignment.Center,
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)
+                    ) {
+                        if (isPurchasing) {
+                            CircularProgressIndicator(
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                modifier = Modifier.size(20.dp),
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text(
+                                stringResource(R.string.subscribe_cta),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 }
             }
@@ -294,7 +305,7 @@ fun SubscribeScreen(
             }
 
             // ─── Or divider ──────────────────────────
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(4.dp))
 
             Text(
                 stringResource(R.string.subscribe_or),
@@ -302,16 +313,20 @@ fun SubscribeScreen(
                 style = MaterialTheme.typography.bodySmall
             )
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(0.dp))
 
             // ─── Start with ad ─────────────────────
             OutlinedButton(
                 onClick = onStartWithAd,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-                    .height(48.dp),
-                shape = RoundedCornerShape(14.dp)
+                    .padding(horizontal = 24.dp),
+                shape = RoundedCornerShape(14.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                ),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 10.dp)
             ) {
                 Text(stringResource(R.string.start_directly))
             }

@@ -4,6 +4,8 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.OpenInNew
@@ -65,7 +67,7 @@ fun SettingsScreen(onBack: () -> Unit) {
         }
     ) { padding ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp),
+            modifier = Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // ─── Language ────────────────────────────────
@@ -247,35 +249,13 @@ fun SettingsScreen(onBack: () -> Unit) {
                 )
             }
 
-            // ─── Contact ───────────────────────────────
-            Text(stringResource(R.string.settings_contact), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_discord),
-                    contentDescription = "Discord",
-                    tint = DiscordColor,
-                    modifier = Modifier
-                        .size(28.dp)
-                        .clickable {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://discord.gg/KFDhTS4Pnt"))
-                            context.startActivity(intent)
-                        }
-                )
-            }
-
             // ─── Cache ───────────────────────────────────
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             Text(stringResource(R.string.settings_cache), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
 
-            val cacheSize = remember { calculateCacheSize(context) }
+            var cacheSize by remember { mutableStateOf(calculateCacheSize(context)) }
             var cacheText by remember { mutableStateOf("计算中...") }
-            LaunchedEffect(Unit) {
+            LaunchedEffect(cacheSize) {
                 cacheText = if (cacheSize <= 0) "0 B"
                 else when {
                     cacheSize < 1024 -> "${cacheSize} B"
@@ -289,12 +269,69 @@ fun SettingsScreen(onBack: () -> Unit) {
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.weight(1f)
                 )
-                Button(onClick = {
-                    clearUnusedCache(context)
-                    cacheText = "0 B"
-                }) {
+                Button(
+                    enabled = cacheSize > 0,
+                    onClick = {
+                        clearUnusedCache(context)
+                        cacheSize = 0
+                    }
+                ) {
                     Text(stringResource(R.string.settings_cache_clear))
                 }
+            }
+
+            // ─── Contact ───────────────────────────────
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    stringResource(R.string.settings_contact),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium
+                )
+                Icon(
+                    painter = painterResource(R.drawable.ic_discord),
+                    contentDescription = "Discord",
+                    tint = DiscordColor,
+                    modifier = Modifier
+                        .size(28.dp)
+                        .clickable {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://discord.gg/KFDhTS4Pnt"))
+                            context.startActivity(intent)
+                        }
+                )
+            }
+
+            // ─── App Version ────────────────────────────
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            val versionName = remember {
+                try {
+                    val pkgInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+                    pkgInfo.versionName ?: "-"
+                } catch (_: Exception) {
+                    "-"
+                }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    stringResource(R.string.settings_version),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium
+                )
+                Text(
+                    versionName,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }
