@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import coil.compose.AsyncImage
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
@@ -22,13 +23,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.media3.common.MediaItem
-import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.ui.PlayerView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -133,38 +130,10 @@ fun SubscribeScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-            // ─── Logo (mp4) ──────────────────────
-            val ctx = LocalContext.current
-            val logoPlayer = remember {
-                ExoPlayer.Builder(ctx).build().apply {
-                    val uri = Uri.parse("android.resource://${ctx.packageName}/${R.raw.logo}")
-                    setMediaItem(MediaItem.fromUri(uri))
-                    volume = 0f
-                    prepare()
-                }
-            }
-            LaunchedEffect(Unit) {
-                logoPlayer.playWhenReady = true
-                while (true) {
-                    logoPlayer.seekTo(0)
-                    logoPlayer.playWhenReady = true
-                    delay(5_000)
-                }
-            }
-            DisposableEffect(Unit) {
-                onDispose {
-                    logoPlayer.playWhenReady = false
-                    logoPlayer.release()
-                }
-            }
-            AndroidView(
-                factory = { viewCtx ->
-                    (android.view.LayoutInflater.from(viewCtx)
-                        .inflate(R.layout.view_video_player_texture, null) as PlayerView).apply {
-                        player = logoPlayer
-                        useController = false
-                    }
-                },
+                        // ─── Logo (Animated GIF) ────────────
+            AsyncImage(
+                model = R.raw.logo,
+                contentDescription = null,
                 modifier = Modifier
                     .size(96.dp)
                     .clip(RoundedCornerShape(12.dp))

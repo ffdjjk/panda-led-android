@@ -94,8 +94,9 @@ dependencies {
     // Reorderable for drag-and-drop
     implementation("org.burnoutcrew.composereorderable:reorderable:0.9.6")
 
-    // Coil for image loading
+    // Coil for image loading (GIF support)
     implementation("io.coil-kt:coil-compose:2.7.0")
+    implementation("io.coil-kt:coil-gif:2.7.0")
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0")

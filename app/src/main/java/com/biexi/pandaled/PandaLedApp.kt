@@ -7,6 +7,8 @@ import com.biexi.pandaled.data.local.AppDatabase
 import com.biexi.pandaled.data.local.JsonFileManager
 import com.biexi.pandaled.data.repository.ProjectRepository
 import com.biexi.pandaled.util.BillingManager
+import coil.ImageLoader
+import coil.decode.ImageDecoderDecoder
 import java.util.Locale
 
 class PandaLedApp : Application() {
@@ -47,6 +49,12 @@ class PandaLedApp : Application() {
 
         // Initialize Google Play Billing
         BillingManager.initialize()
+
+        // Initialize Coil with GIF support
+        val imageLoader = ImageLoader.Builder(this)
+            .components { add(ImageDecoderDecoder.Factory()) }
+            .build()
+        coil.Coil.setImageLoader(imageLoader)
 
         database = AppDatabase.getInstance(this)
         jsonFileManager = JsonFileManager(this)
