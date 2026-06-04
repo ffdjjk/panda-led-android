@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Icon
@@ -20,6 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -115,14 +118,19 @@ fun FullScreenContent(
 ) {
     var lockShowRequest by remember { mutableIntStateOf(0) }
     var lockAlpha by remember { mutableStateOf(0.5f) }
-    var showHint by remember { mutableStateOf(false) }
+    var showUnlockHint by remember { mutableStateOf(true) }
+
+    // Auto-hide unlock hint overlay after 3s
+    LaunchedEffect(Unit) {
+        delay(3000)
+        showUnlockHint = false
+    }
 
     // Auto-hide lock after 3 seconds
     LaunchedEffect(lockShowRequest) {
         lockAlpha = 0.5f
         delay(3000)
         lockAlpha = 0f
-        showHint = false
     }
 
     // Scene playback state
@@ -222,42 +230,44 @@ fun FullScreenContent(
             }
         }
 
-        // ─── Lock icon & unlock hint (top-left, fades after 3s) ─────────────
+        // ─── Unlock hint overlay (centered, auto-hides after 3s) ──
+        if (showUnlockHint) {
+            Text(
+                text = stringResource(R.string.fullscreen_unlock_toast),
+                color = Color.White,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .background(Color.Black.copy(alpha = 0.7f), RoundedCornerShape(12.dp))
+                    .padding(horizontal = 24.dp, vertical = 12.dp)
+            )
+        }
+
+        // ─── Lock icon (top-left, top layer, fades after 3s) ──
         if (lockAlpha > 0.01f) {
-            Row(
+            Icon(
+                imageVector = Icons.Default.Lock,
+                contentDescription = stringResource(R.string.fullscreen_lock),
+                tint = Color.White.copy(alpha = lockAlpha),
                 modifier = Modifier
                     .align(Alignment.TopStart)
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Lock,
-                    contentDescription = stringResource(R.string.fullscreen_lock),
-                    tint = Color.White.copy(alpha = lockAlpha),
-                    modifier = Modifier
-                        .size(44.dp)
-                        .clip(CircleShape)
-                        .background(Color.Black.copy(alpha = 0.3f))
-                        .padding(9.dp)
-                        .pointerInput(Unit) {
-                            detectTapGestures(                onTap = {
-                    lockShowRequest++
-                    showHint = true
-                },
-                                onDoubleTap = {
-                                    onExit()
-                                }
-                            )
-                        }
-                )
-                if (showHint) {
-                    Text(
-                        text = stringResource(R.string.fullscreen_double_tap_hint),
-                        color = Color.White.copy(alpha = lockAlpha),
-                        modifier = Modifier.padding(start = 0.dp)
-                    )
-                }
-            }
+                    .padding(16.dp)
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .background(Color.Black.copy(alpha = 0.3f))
+                    .padding(9.dp)
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onTap = {
+                                lockShowRequest++
+                            },
+                            onDoubleTap = {
+                                onExit()
+                            }
+                        )
+                    }
+            )
         }
     }
 }

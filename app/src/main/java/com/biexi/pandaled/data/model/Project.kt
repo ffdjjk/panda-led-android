@@ -111,7 +111,7 @@ data class EnterConfig(
 // ─── Appearance ──────────────────────────────────────────
 
 data class Appearance(
-    val overlay: List<Overlay>? = listOf(Overlay()),
+    val overlay: List<Overlay>? = null,
     val backgroundColor: ColorConfig? = ColorConfig()
 )
 

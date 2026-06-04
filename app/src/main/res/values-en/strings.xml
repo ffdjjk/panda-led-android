@@ -141,6 +141,7 @@
     <string name="fullscreen_loading">Loading…</string>
     <string name="fullscreen_lock">Lock</string>
     <string name="fullscreen_double_tap_hint">Double-click to unlock</string>
+    <string name="fullscreen_unlock_toast">Double-tap the lock icon to exit</string>
     <string name="fullscreen_video_missing">Video needed</string>
 
     <!-- Settings -->

@@ -130,8 +130,6 @@ class DetailViewModel : ViewModel() {
         mutableScenes[index] = scene
         currentProject = project.copy(scenes = mutableScenes)
         refreshState()
-        // Re-trigger preview playback for this scene
-        triggerScenePreview(index)
         autoSave()
     }
 
@@ -230,15 +228,6 @@ class DetailViewModel : ViewModel() {
 
     fun stopPreview() {
         _uiState.value = _uiState.value.copy(isPreviewPlaying = false, previewCurrentIndex = 0)
-    }
-
-    /** Re-show scene in preview on update. */
-    fun triggerScenePreview(sceneIndex: Int) {
-        _uiState.value = _uiState.value.copy(
-            selectedTarget = EditorTarget.Scene(sceneIndex),
-            isPreviewPlaying = true,
-            previewReplayKey = _uiState.value.previewReplayKey + 1
-        )
     }
 
     /** Re-show current scene in preview. */
