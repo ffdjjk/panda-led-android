@@ -953,8 +953,9 @@ fun DotMaskEditor(
     overlays: List<Overlay>?,
     onUpdate: (List<Overlay>?) -> Unit
 ) {
+    val overlaysKey = System.identityHashCode(overlays)
     val overlay = overlays?.firstOrNull { it.type == OverlayType.DOT_MASK }
-    var hasOverlay by remember(overlays) { mutableStateOf(overlay != null) }
+    var hasOverlay by remember(overlaysKey) { mutableStateOf(overlay != null) }
     Row(verticalAlignment = Alignment.CenterVertically) {
         FieldLabel(stringResource(R.string.editor_dot_mask))
         Spacer(Modifier.weight(1f))
@@ -968,8 +969,9 @@ fun DotMaskEditor(
     }
     if (hasOverlay) {
         val dot = overlay ?: Overlay()
-        var dotSize by remember(dot) { mutableStateOf(dot.size.coerceIn(1, 10)) }
-        var dotStyle by remember(dot) { mutableStateOf(dot.style) }
+        val dotKey = System.identityHashCode(dot)
+        var dotSize by remember(dotKey) { mutableStateOf(dot.size.coerceIn(1, 10)) }
+        var dotStyle by remember(dotKey) { mutableStateOf(dot.style) }
 
         FieldLabel(stringResource(R.string.editor_mask_style))
         TypeSelector(
