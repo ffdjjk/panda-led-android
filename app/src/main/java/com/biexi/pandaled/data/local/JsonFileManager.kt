@@ -46,19 +46,4 @@ class JsonFileManager(private val context: Context) {
         File(projectsDir, fileName).delete()
     }
 
-    /**
-     * Parse a Project from a raw JSON string (used for QR import).
-     */
-    fun parseFromJson(json: String): Project? {
-        return try {
-            gson.fromJson(json, Project::class.java)
-        } catch (e: Exception) {
-            null
-        }
-    }
-
-    /**
-     * Serialize a Project to a JSON string.
-     */
-    fun toJson(project: Project): String = gson.toJson(project)
 }

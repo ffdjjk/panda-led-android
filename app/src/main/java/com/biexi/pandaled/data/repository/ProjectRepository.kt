@@ -64,13 +64,4 @@ class ProjectRepository(
         projectDao.deleteProject(index)
     }
 
-    /** Import a project from a JSON string (e.g. from QR code). */
-    suspend fun importFromJson(json: String): Project? {
-        val project = jsonFileManager.parseFromJson(json) ?: return null
-        saveProject(project)
-        return project
-    }
-
-    /** Serialize a project to JSON string (for QR export). */
-    fun projectToJson(project: Project): String = jsonFileManager.toJson(project)
 }

@@ -14,8 +14,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -307,70 +305,6 @@ fun DetailScreen(
             }
         }
     }
-
-    // ─── QR Share Dialog ─────────────────────────────────
-    if (state.showQrDialog && state.qrCodeBitmap != null) {
-        Dialog(
-            onDismissRequest = {}, // only close button dismisses
-            properties = androidx.compose.ui.window.DialogProperties(dismissOnClickOutside = false)
-        ) {
-            Card(
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        stringResource(R.string.share_title),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(Modifier.height(16.dp))
-                    // QR image (label baked into bitmap)
-                    Image(
-                        bitmap = state.qrCodeBitmap!!.asImageBitmap(),
-                        contentDescription = stringResource(R.string.qr_code_desc),
-                        modifier = Modifier
-                            .size(260.dp, 280.dp) // taller for label
-                            .clip(RoundedCornerShape(8.dp)),
-                        contentScale = ContentScale.Fit
-                    )
-                    Spacer(Modifier.height(16.dp))
-                    // ─── Action buttons ──────────────────
-                    val chooserTitle = stringResource(R.string.share_title)
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        // Share via system
-                        TextButton(onClick = {
-                            val bmp = state.qrCodeBitmap!!
-                            val file = java.io.File(context.cacheDir, "shared/qr_share.png")
-                            file.parentFile?.mkdirs()
-                            file.outputStream().use { bmp.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
-                            val uri = androidx.core.content.FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
-                            val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
-                                type = "image/png"
-                                putExtra(android.content.Intent.EXTRA_STREAM, uri)
-                                addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                            }
-                            context.startActivity(android.content.Intent.createChooser(intent, chooserTitle))
-                        }) {
-                            Text(stringResource(R.string.share))
-                        }
-                        // Close
-                        TextButton(onClick = { viewModel.dismissQrDialog() }) {
-                            Text(stringResource(R.string.close))
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-
 
     // ─── Countdown timer for ad loading ──────────────
     LaunchedEffect(showAdLoading) {

@@ -9,6 +9,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -247,7 +248,7 @@ fun IdleImageEditor(
     val current = content ?: IdleSceneContent()
     val context = androidx.compose.ui.platform.LocalContext.current
     val picker = rememberLauncherForActivityResult(
-        androidx.activity.result.contract.ActivityResultContracts.GetContent()
+        androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia()
     ) { uri ->
         if (uri != null) {
             val path = copyToAppStorage(context, uri, "img")
@@ -256,7 +257,7 @@ fun IdleImageEditor(
     }
     val source = current.source
 
-    Button(onClick = { picker.launch("image/*") }, modifier = Modifier.fillMaxWidth()) {
+    Button(onClick = { picker.launch(PickVisualMediaRequest(androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly)) }, modifier = Modifier.fillMaxWidth()) {
         Text(if (source.isNullOrBlank()) stringResource(R.string.editor_select_image) else stringResource(R.string.editor_replace_image))
     }
     if (source.isNullOrBlank()) {
@@ -583,7 +584,7 @@ fun TextContentEditor(content: SceneContent, onUpdate: (SceneContent) -> Unit) {
 fun ImageContentEditor(content: SceneContent, onUpdate: (SceneContent) -> Unit) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val picker = rememberLauncherForActivityResult(
-        androidx.activity.result.contract.ActivityResultContracts.GetContent()
+        androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia()
     ) { uri ->
         if (uri != null) {
             val path = copyToAppStorage(context, uri, "img")
@@ -592,7 +593,7 @@ fun ImageContentEditor(content: SceneContent, onUpdate: (SceneContent) -> Unit) 
     }
     val source = content.source
 
-    Button(onClick = { picker.launch("image/*") }, modifier = Modifier.fillMaxWidth()) {
+    Button(onClick = { picker.launch(PickVisualMediaRequest(androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly)) }, modifier = Modifier.fillMaxWidth()) {
         Text(if (source.isNullOrBlank()) stringResource(R.string.editor_select_image) else stringResource(R.string.editor_replace_image))
     }
     if (source.isNullOrBlank()) {
@@ -625,7 +626,7 @@ fun ImageContentEditor(content: SceneContent, onUpdate: (SceneContent) -> Unit) 
 fun VideoContentEditor(content: SceneContent, onUpdate: (SceneContent) -> Unit) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val picker = rememberLauncherForActivityResult(
-        androidx.activity.result.contract.ActivityResultContracts.GetContent()
+        androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia()
     ) { uri ->
         if (uri != null) {
             val path = copyToAppStorage(context, uri, "video")
@@ -634,7 +635,7 @@ fun VideoContentEditor(content: SceneContent, onUpdate: (SceneContent) -> Unit) 
     }
     val source = content.source
 
-    Button(onClick = { picker.launch("video/*") }, modifier = Modifier.fillMaxWidth()) {
+    Button(onClick = { picker.launch(PickVisualMediaRequest(androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VideoOnly)) }, modifier = Modifier.fillMaxWidth()) {
         Text(if (source.isNullOrBlank()) stringResource(R.string.editor_select_video) else stringResource(R.string.editor_replace_video))
     }
     if (source.isNullOrBlank()) {

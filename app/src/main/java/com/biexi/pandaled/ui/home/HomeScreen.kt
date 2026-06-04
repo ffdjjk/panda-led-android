@@ -1,18 +1,7 @@
 package com.biexi.pandaled.ui.home
 
-import android.Manifest
-import android.content.pm.PackageManager
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.Preview
-import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.view.PreviewView
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,7 +9,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.graphics.Color
@@ -33,7 +21,6 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
-import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -41,24 +28,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.mlkit.vision.barcode.BarcodeScanning
-import com.google.mlkit.vision.common.InputImage
 import com.biexi.pandaled.data.model.ProjectIndex
 import androidx.compose.ui.res.stringResource
 import com.biexi.pandaled.R
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import java.util.concurrent.Executors
 import kotlin.collections.IndexedValue
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,33 +47,9 @@ fun HomeScreen(
     viewModel: HomeViewModel = viewModel()
 ) {
     val projects by viewModel.projects.collectAsState()
-    val isScanning by viewModel.isScanning.collectAsState()
-    val importError by viewModel.importError.collectAsState()
-    val scanResult by viewModel.scanResult.collectAsState()
 
-    // Permission launcher
-    val context = LocalContext.current
     var isCreating by remember { mutableStateOf(false) }
     var projectToDelete by remember { mutableStateOf<com.biexi.pandaled.data.model.ProjectIndex?>(null) }
-    var hasCameraPermission by remember {
-        mutableStateOf(
-            ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) ==
-                    PackageManager.PERMISSION_GRANTED
-        )
-    }
-    val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        hasCameraPermission = granted
-        if (granted) viewModel.startScanning()
-    }
-
-    // Handle import errors
-    LaunchedEffect(importError) {
-        importError?.let {
-            // Error will be shown via Snackbar or dialog; clear handled via user action
-        }
-    }
 
     var fabExpanded by remember { mutableStateOf(false) }
     var showSettings by remember { mutableStateOf(false) }
@@ -267,25 +222,6 @@ fun HomeScreen(
         }
     }
 
-    // QR Scanner Dialog
-    if (isScanning) {
-        QrScannerDialog(
-            onDismiss = { viewModel.stopScanning() },
-            onQrDetected = { rawText ->
-                viewModel.onQrCodeScanned(rawText)
-            }
-        )
-    }
-
-    // Import result snackbar
-    LaunchedEffect(scanResult) {
-        scanResult?.let { name ->
-            // Successfully imported — briefly celebrate then clear
-            viewModel.clearScanResult()
-        }
-    }
-
-    // Error dialog
     // Delete confirmation dialog
     projectToDelete?.let { project ->
         AlertDialog(
@@ -306,19 +242,6 @@ fun HomeScreen(
             dismissButton = {
                 TextButton(onClick = { projectToDelete = null }) {
                     Text(stringResource(R.string.home_cancel))
-                }
-            }
-        )
-    }
-
-    importError?.let { error ->
-        AlertDialog(
-            onDismissRequest = { viewModel.clearImportError() },
-            title = { Text(stringResource(R.string.qr_import_error)) },
-            text = { Text(error) },
-            confirmButton = {
-                TextButton(onClick = { viewModel.clearImportError() }) {
-                    Text(stringResource(R.string.home_confirm))
                 }
             }
         )
@@ -419,118 +342,6 @@ fun ProjectCard(
                     )
                 }
             }
-        }
-    }
-}
-
-// ─── QR Scanner Dialog ───────────────────────────────────
-
-@Composable
-fun QrScannerDialog(
-    onDismiss: () -> Unit,
-    onQrDetected: (String) -> Unit
-) {
-    val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
-    var hasDetected by remember { mutableStateOf(false) }
-
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-        ) {
-            // Camera preview
-            AndroidView(
-                modifier = Modifier.fillMaxSize(),
-                factory = { ctx ->
-                    val previewView = PreviewView(ctx)
-                    val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
-
-                    cameraProviderFuture.addListener({
-                        val cameraProvider = cameraProviderFuture.get()
-
-                        val preview = Preview.Builder().build().also {
-                            it.setSurfaceProvider(previewView.surfaceProvider)
-                        }
-
-                        val imageAnalysis = ImageAnalysis.Builder()
-                            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                            .build()
-
-                        val scanner = BarcodeScanning.getClient()
-                        val executor = Executors.newSingleThreadExecutor()
-
-                        imageAnalysis.setAnalyzer(executor) { imageProxy ->
-                            if (hasDetected) {
-                                imageProxy.close()
-                                return@setAnalyzer
-                            }
-                            val mediaImage = imageProxy.image
-                            if (mediaImage != null) {
-                                val image = InputImage.fromMediaImage(
-                                    mediaImage,
-                                    imageProxy.imageInfo.rotationDegrees
-                                )
-                                scanner.process(image)
-                                    .addOnSuccessListener { barcodes ->
-                                        for (barcode in barcodes) {
-                                            barcode.rawValue?.let { value ->
-                                                hasDetected = true
-                                                onQrDetected(value)
-                                            }
-                                        }
-                                    }
-                                    .addOnCompleteListener {
-                                        imageProxy.close()
-                                    }
-                            } else {
-                                imageProxy.close()
-                            }
-                        }
-
-                        try {
-                            cameraProvider.unbindAll()
-                            cameraProvider.bindToLifecycle(
-                                lifecycleOwner,
-                                CameraSelector.DEFAULT_BACK_CAMERA,
-                                preview,
-                                imageAnalysis
-                            )
-                        } catch (_: Exception) { }
-                    }, ContextCompat.getMainExecutor(ctx))
-
-                    previewView
-                }
-            )
-
-            // Dismiss button
-            IconButton(
-                onClick = onDismiss,
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(16.dp)
-                    .statusBarsPadding()
-            ) {
-                Icon(
-                    Icons.Default.Close,
-                    contentDescription = "关闭",
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
-            }
-
-            // Scan overlay hint
-            Text(
-                "将二维码对准框内",
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(48.dp),
-                color = MaterialTheme.colorScheme.onPrimary,
-                style = MaterialTheme.typography.bodyLarge
-            )
         }
     }
 }

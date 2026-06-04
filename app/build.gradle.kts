@@ -75,15 +75,6 @@ dependencies {
     ksp("androidx.room:room-compiler:2.8.4")
 
 
-    // CameraX + ML Kit Barcode Scanning
-    implementation("androidx.camera:camera-camera2:1.6.1")
-    implementation("androidx.camera:camera-lifecycle:1.6.1")
-    implementation("androidx.camera:camera-view:1.6.1")
-    implementation("com.google.mlkit:barcode-scanning:17.3.0")
-
-    // ZXing for QR code generation
-    implementation("com.google.zxing:core:3.5.4")
-
     // ExoPlayer (Media3)
     implementation("androidx.media3:media3-exoplayer:1.10.1")
     implementation("androidx.media3:media3-ui:1.10.1")

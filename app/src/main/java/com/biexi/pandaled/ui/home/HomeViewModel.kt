@@ -21,59 +21,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         .getAllProjectIndices()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    private val _scanResult = MutableStateFlow<String?>(null)
-    val scanResult: StateFlow<String?> = _scanResult.asStateFlow()
-
-    private val _importError = MutableStateFlow<String?>(null)
-    val importError: StateFlow<String?> = _importError.asStateFlow()
-
-    private val _isScanning = MutableStateFlow(false)
-    val isScanning: StateFlow<Boolean> = _isScanning.asStateFlow()
-
-    fun startScanning() {
-        _isScanning.value = true
-    }
-
-    fun stopScanning() {
-        _isScanning.value = false
-    }
-
-    /** Called when a QR code is successfully scanned. */
-    fun onQrCodeScanned(rawText: String) {
-        _isScanning.value = false
-        viewModelScope.launch {
-            try {
-                // rawText is the base64-encoded JSON
-                val json = try {
-                    // Try direct JSON first, then base64 decode
-                    if (rawText.startsWith("{")) rawText
-                    else android.util.Base64.decode(rawText, android.util.Base64.DEFAULT).decodeToString()
-                } catch (e: Exception) {
-                    _importError.value = "无法解析二维码内容: ${e.message}"
-                    return@launch
-                }
-
-                val project = repository.importFromJson(json)
-                if (project != null) {
-                    _scanResult.value = project.name
-                    _importError.value = null
-                } else {
-                    _importError.value = "JSON 格式不正确，无法导入项目"
-                }
-            } catch (e: Exception) {
-                _importError.value = "导入失败: ${e.message}"
-            }
-        }
-    }
-
-    fun clearScanResult() {
-        _scanResult.value = null
-    }
-
-    fun clearImportError() {
-        _importError.value = null
-    }
-
     fun moveProject(from: ProjectIndex, to: ProjectIndex) {
         viewModelScope.launch {
             repository.moveProject(from, to)

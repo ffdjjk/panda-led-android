@@ -2,7 +2,6 @@ package com.biexi.pandaled.ui.detail
 
 import android.content.Context
 import android.content.Intent
-import android.util.Base64
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.biexi.pandaled.PandaLedApp
@@ -34,8 +33,6 @@ data class DetailUiState(
     val previewReplayKey: Int = 0,
     val previewCurrentIndex: Int = 0,     // which scene index is currently playing in preview
     val previewTotalCount: Int = 0,
-    val qrCodeBitmap: android.graphics.Bitmap? = null,
-    val showQrDialog: Boolean = false,
     val missingAssets: List<MissingAsset> = emptyList(),
     val highlightedSceneIndex: Int? = null, // for "待补充完整" click highlight
     val tabToSwitch: Int? = null  // trigger tab switch from outside
@@ -298,29 +295,12 @@ class DetailViewModel : ViewModel() {
         }
     }
 
-    // ─── QR share ────────────────────────────────────────
-
-    fun generateShareQr(label: String) {
-        val project = currentProject ?: return
-        val json = repository.projectToJson(project)
-        val base64 = Base64.encodeToString(json.toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
-        val bitmap = com.biexi.pandaled.util.QrCodeHelper.generateQrCodeWithLabel(base64, 512, label)
-        _uiState.value = _uiState.value.copy(
-            qrCodeBitmap = bitmap,
-            showQrDialog = true
-        )
-    }
-
     fun selectTab(index: Int) {
         _uiState.value = _uiState.value.copy(tabToSwitch = index)
     }
 
     fun clearTabSwitch() {
         _uiState.value = _uiState.value.copy(tabToSwitch = null)
-    }
-
-    fun dismissQrDialog() {
-        _uiState.value = _uiState.value.copy(showQrDialog = false, qrCodeBitmap = null)
     }
 
     // ─── Helpers ─────────────────────────────────────────
