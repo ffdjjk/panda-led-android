@@ -6,6 +6,7 @@
     <application
         android:name=".PandaLedApp"
         android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
         android:localeConfig="@xml/locales_config"
         android:usesCleartextTraffic="true"
         android:icon="@mipmap/ic_launcher"

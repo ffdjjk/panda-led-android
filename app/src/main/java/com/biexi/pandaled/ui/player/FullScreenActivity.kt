@@ -115,12 +115,14 @@ fun FullScreenContent(
 ) {
     var lockShowRequest by remember { mutableIntStateOf(0) }
     var lockAlpha by remember { mutableStateOf(0.5f) }
+    var showHint by remember { mutableStateOf(false) }
 
     // Auto-hide lock after 3 seconds
     LaunchedEffect(lockShowRequest) {
         lockAlpha = 0.5f
         delay(3000)
         lockAlpha = 0f
+        showHint = false
     }
 
     // Scene playback state
@@ -220,12 +222,13 @@ fun FullScreenContent(
             }
         }
 
-        // ─── Lock icon (top-left, fades after 3s) ─────────────
+        // ─── Lock icon & unlock hint (top-left, fades after 3s) ─────────────
         if (lockAlpha > 0.01f) {
-            Box(
+            Row(
                 modifier = Modifier
                     .align(Alignment.TopStart)
-                    .padding(16.dp)
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
                     imageVector = Icons.Default.Lock,
@@ -237,13 +240,23 @@ fun FullScreenContent(
                         .background(Color.Black.copy(alpha = 0.3f))
                         .padding(9.dp)
                         .pointerInput(Unit) {
-                            detectTapGestures(
+                            detectTapGestures(                onTap = {
+                    lockShowRequest++
+                    showHint = true
+                },
                                 onDoubleTap = {
                                     onExit()
                                 }
                             )
                         }
                 )
+                if (showHint) {
+                    Text(
+                        text = stringResource(R.string.fullscreen_double_tap_hint),
+                        color = Color.White.copy(alpha = lockAlpha),
+                        modifier = Modifier.padding(start = 0.dp)
+                    )
+                }
             }
         }
     }

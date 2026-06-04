@@ -141,6 +141,7 @@
     <!-- Fullscreen -->
     <string name="fullscreen_loading">加载中…</string>
     <string name="fullscreen_lock">锁定</string>
+    <string name="fullscreen_double_tap_hint">双击解锁</string>
     <string name="fullscreen_video_missing">视频待补充</string>
 
     <!-- Settings -->
