@@ -1,0 +1,24 @@
+{
+  "type": "video",
+  "duration": 30,
+  "playMode": "loop",
+  "content": {
+    "source": "",
+    "transform": { "mirror": false },
+    "animation": {
+      "blink": { "frequency": 0 }
+    }
+  },
+  "transition": {
+    "enter": { "type": "none", "duration": 0 }
+  },
+  "appearance": {
+    "overlay": [
+      { "type": "dotMask", "size": 1, "style": "round", "zIndex": 0 }
+    ],
+    "backgroundColor": {
+      "type": "static",
+      "value": "#000000"
+    }
+  }
+}

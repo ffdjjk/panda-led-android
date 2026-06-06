@@ -36,7 +36,15 @@ fun SettingsScreen(onBack: () -> Unit) {
     var selectedLang by remember { mutableStateOf(prefs.getString("language", "") ?: "") }
     // Fallback to system language if not set (matches PandaLedApp.onCreate behavior)
     if (selectedLang.isEmpty()) {
-        selectedLang = if (java.util.Locale.getDefault().language.startsWith("zh")) "zh" else "en"
+        val sys = java.util.Locale.getDefault()
+        selectedLang = when {
+            sys.language.startsWith("zh") -> "zh"
+            sys.language.startsWith("ko") -> "ko"
+            sys.language.startsWith("ja") -> "ja"
+            sys.language.startsWith("pt") -> "pt"
+            sys.language.startsWith("es") -> "es"
+            else -> "en"
+        }
     }
     var selectedColorMode by remember { mutableStateOf(prefs.getString("color_mode", "system") ?: "system") }
 
@@ -45,7 +53,11 @@ fun SettingsScreen(onBack: () -> Unit) {
 
     val langOptions = mapOf(
         "zh" to stringResource(R.string.settings_lang_zh),
-        "en" to stringResource(R.string.settings_lang_en)
+        "en" to stringResource(R.string.settings_lang_en),
+        "ko" to stringResource(R.string.settings_lang_ko),
+        "ja" to stringResource(R.string.settings_lang_ja),
+        "pt" to stringResource(R.string.settings_lang_pt),
+        "es" to stringResource(R.string.settings_lang_es)
     )
     val colorModeOptions = mapOf(
         "system" to stringResource(R.string.settings_theme_system),
@@ -100,6 +112,10 @@ fun SettingsScreen(onBack: () -> Unit) {
                                 val locale = when (key) {
                                     "zh" -> java.util.Locale("zh")
                                     "en" -> java.util.Locale("en")
+                                    "ko" -> java.util.Locale("ko")
+                                    "ja" -> java.util.Locale("ja")
+                                    "pt" -> java.util.Locale("pt")
+                                    "es" -> java.util.Locale("es")
                                     else -> java.util.Locale("en")
                                 }
                                 AppCompatDelegate.setApplicationLocales(LocaleListCompat.create(locale))
@@ -227,7 +243,14 @@ fun SettingsScreen(onBack: () -> Unit) {
                     .fillMaxWidth()
                     .clickable {
                         val lang = prefs.getString("language", "") ?: ""
-                        val langSegment = if (lang == "zh") "zh" else "en"
+                        val langSegment = when (lang) {
+                            "zh" -> "zh"
+                            "ko" -> "ko"
+                            "ja" -> "ja"
+                            "pt" -> "pt"
+                            "es" -> "es"
+                            else -> "en"
+                        }
                         val url = "https://pandaled.biexi.com/#/privacy-policy/$langSegment"
                         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                         context.startActivity(intent)

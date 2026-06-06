@@ -38,6 +38,11 @@
     <string name="scene_move_down">下移</string>
     <string name="scene_delete">删除</string>
 
+    <!-- Scene Type Labels (used in ViewModel for auto-naming) -->
+    <string name="scene_type_text">文字</string>
+    <string name="scene_type_image">图片</string>
+    <string name="scene_type_video">视频</string>
+
     <!-- Idle Scene Types -->
     <string name="idle_none">黑屏</string>
     <string name="idle_clock">时钟</string>
@@ -152,6 +157,10 @@
     <string name="settings_lang_system">随系统</string>
     <string name="settings_lang_zh">中文</string>
     <string name="settings_lang_en">English</string>
+    <string name="settings_lang_ko">한국어</string>
+    <string name="settings_lang_ja">日本語</string>
+    <string name="settings_lang_pt">Português</string>
+    <string name="settings_lang_es">Español</string>
     <string name="settings_theme">主题</string>
     <string name="settings_theme_system">随系统</string>
     <string name="settings_theme_light">浅色模式</string>

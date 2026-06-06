@@ -29,9 +29,20 @@ class PandaLedApp : Application() {
         val locale = when {
             language == "zh" -> Locale("zh")
             language == "en" -> Locale("en")
+            language == "ko" -> Locale("ko")
+            language == "ja" -> Locale("ja")
+            language == "pt" -> Locale("pt")
+            language == "es" -> Locale("es")
             else -> {
                 val sys = Locale.getDefault()
-                if (sys.language.startsWith("zh")) Locale("zh") else Locale("en")
+                when {
+                    sys.language.startsWith("zh") -> Locale("zh")
+                    sys.language.startsWith("ko") -> Locale("ko")
+                    sys.language.startsWith("ja") -> Locale("ja")
+                    sys.language.startsWith("pt") -> Locale("pt")
+                    sys.language.startsWith("es") -> Locale("es")
+                    else -> Locale("en")
+                }
             }
         }
         AppCompatDelegate.setApplicationLocales(

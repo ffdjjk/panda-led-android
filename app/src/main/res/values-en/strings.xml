@@ -38,6 +38,11 @@
     <string name="scene_move_down">Move Down</string>
     <string name="scene_delete">Delete</string>
 
+    <!-- Scene Type Labels (used in ViewModel for auto-naming) -->
+    <string name="scene_type_text">Text</string>
+    <string name="scene_type_image">Image</string>
+    <string name="scene_type_video">Video</string>
+
     <!-- Idle Scene Types -->
     <string name="idle_none">Black</string>
     <string name="idle_clock">Clock</string>
@@ -151,6 +156,10 @@
     <string name="settings_lang_system">System</string>
     <string name="settings_lang_zh">中文</string>
     <string name="settings_lang_en">English</string>
+    <string name="settings_lang_ko">한국어</string>
+    <string name="settings_lang_ja">日本語</string>
+    <string name="settings_lang_pt">Português</string>
+    <string name="settings_lang_es">Español</string>
     <string name="settings_theme">Theme</string>
     <string name="settings_theme_system">System</string>
     <string name="settings_theme_light">Light</string>

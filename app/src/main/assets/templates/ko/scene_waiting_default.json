@@ -1,0 +1,11 @@
+{
+  "type": "countdown",
+  "content": {
+    "style": {
+      "format": "{hours}:{minutes}:{seconds}",
+      "fontFamily": "sans-serif",
+      "size": 40,
+      "color": "#FFFFFF"
+    }
+  }
+}

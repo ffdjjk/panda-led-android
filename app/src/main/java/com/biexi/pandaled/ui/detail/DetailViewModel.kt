@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.biexi.pandaled.PandaLedApp
+import com.biexi.pandaled.R
 import com.biexi.pandaled.data.model.*
 import com.biexi.pandaled.ui.player.FullScreenActivity
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -145,13 +146,20 @@ class DetailViewModel : ViewModel() {
         val prefs = PandaLedApp.instance.getSharedPreferences("pandaled_prefs", android.content.Context.MODE_PRIVATE)
         val lang = prefs.getString("language", "") ?: ""
         val resolved = lang.ifEmpty {
-            if (java.util.Locale.getDefault().language.startsWith("zh")) "zh" else "en"
+            val sys = java.util.Locale.getDefault()
+            when {
+                sys.language.startsWith("zh") -> "zh"
+                sys.language.startsWith("ko") -> "ko"
+                sys.language.startsWith("ja") -> "ja"
+                sys.language.startsWith("pt") -> "pt"
+                sys.language.startsWith("es") -> "es"
+                else -> "en"
+            }
         }
-        val isZh = resolved == "zh"
         val typeLabel = when (type) {
-            SceneType.TEXT -> if (isZh) "文字" else "Text"
-            SceneType.IMAGE -> if (isZh) "图片" else "Image"
-            SceneType.VIDEO -> if (isZh) "视频" else "Video"
+            SceneType.TEXT -> PandaLedApp.instance.getString(R.string.scene_type_text)
+            SceneType.IMAGE -> PandaLedApp.instance.getString(R.string.scene_type_image)
+            SceneType.VIDEO -> PandaLedApp.instance.getString(R.string.scene_type_video)
         }
         val sceneFile = when (type) {
             SceneType.TEXT -> "scene_text_default.json"

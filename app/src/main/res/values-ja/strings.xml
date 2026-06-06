@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PandaLED</string>
+    <string name="untitled_project">無題のプロジェクト</string>
+    <string name="app_subtitle">心を灯して、世界に見せよう。</string>
+
+    <!-- Home -->
+    <string name="home_no_projects">プロジェクトなし</string>
+    <string name="home_scan_hint">+ ボタンをタップして作成</string>
+    <string name="home_new_project">新規作成</string>
+    <string name="creating_project">プロジェクト作成中…</string>
+    <string name="home_settings">設定</string>
+    <string name="home_theme_switch_light">ライトモードに切替</string>
+    <string name="home_theme_switch_dark">ダークモードに切替</string>
+    <string name="home_delete_title">削除確認</string>
+    <string name="home_delete_confirm">「%1$s」を削除しますか？</string>
+    <string name="home_delete">削除</string>
+    <string name="home_cancel">キャンセル</string>
+    <string name="home_confirm">OK</string>
+    <!-- Detail -->
+    <string name="detail_tab_info">プロジェクト情報</string>
+    <string name="detail_tab_scenes">シーン一覧</string>
+    <string name="detail_tab_editor">シーン編集</string>
+    <string name="detail_project_name">プロジェクト名</string>
+    <string name="detail_start_time">開始時間</string>
+    <string name="pick_time">時間を選択</string>
+    <string name="detail_save">保存</string>
+    <string name="detail_fullscreen">全画面</string>
+    <string name="detail_missing_assets">個の素材が不足</string>
+
+    <!-- Scene List -->
+    <string name="scene_waiting">待機シーン</string>
+    <string name="scene_add">シーン追加</string>
+    <string name="scene_text">テキストシーン</string>
+    <string name="scene_image">画像シーン</string>
+    <string name="scene_video">動画シーン</string>
+    <string name="scene_move_up">上に移動</string>
+    <string name="scene_move_down">下に移動</string>
+    <string name="scene_delete">削除</string>
+
+    <!-- Scene Type Labels (used in ViewModel for auto-naming) -->
+    <string name="scene_type_text">テキスト</string>
+    <string name="scene_type_image">画像</string>
+    <string name="scene_type_video">動画</string>
+
+    <!-- Idle Scene Types -->
+    <string name="idle_none">黒画面</string>
+    <string name="idle_clock">時計</string>
+    <string name="idle_countdown">カウントダウン</string>
+    <string name="idle_image">画像</string>
+    <string name="idle_waiting_hint">プロジェクト開始前、このシーンが表示され続けます。</string>
+    <string name="idle_view_start_time">開始時間を見る</string>
+    <string name="idle_black_hint">黒画面モード - 設定不要</string>
+
+    <!-- Scene Editor -->
+    <string name="editor_select_scene">シーン一覧から選択してください</string>
+    <string name="editor_scene_not_found">シーンが存在しません</string>
+    <string name="editor_basic">基本設定</string>
+    <string name="editor_content">コンテンツ</string>
+    <string name="editor_transition">トランジション</string>
+    <string name="editor_appearance">外観</string>
+    <string name="editor_scene_name">シーン名</string>
+    <string name="editor_duration">長さ (秒)</string>
+    <string name="duration_unit">秒</string>
+    <string name="editor_play_mode">再生モード</string>
+    <string name="editor_show_mode">表示モード</string>
+    <string name="editor_loop">ループ</string>
+    <string name="editor_once">1回</string>
+    <string name="editor_enter_anim">開始アニメーション</string>
+    <string name="editor_anim_duration">アニメーション時間 (秒)</string>
+    <string name="editor_format">形式</string>
+    <string name="editor_text_content">テキスト内容</string>
+    <string name="editor_font_size">文字サイズ</string>
+    <string name="editor_font">フォント</string>
+    <string name="font_preview">あいう</string>
+    <string name="font_default">デフォルト</string>
+    <string name="font_bold">太字</string>
+    <string name="font_light">細字</string>
+    <string name="font_condensed">コンデンス</string>
+    <string name="font_serif">明朝体</string>
+    <string name="font_mono">等幅</string>
+    <string name="font_casual">カジュアル</string>
+    <string name="font_cursive">筆記体</string>
+    <string name="font_noto_sans">Noto Sans</string>
+    <string name="font_noto_serif">Noto Serif</string>
+    <string name="font_noto_sans_bold">Noto Bold</string>
+    <string name="font_noto_sans_light">Noto Light</string>
+    <string name="font_chinese_simple">簡体字</string>
+    <string name="font_chinese_classical">古風</string>
+    <string name="font_zcool">ZCOOL Butter</string>
+    <string name="font_mashan">Ma Shan</string>
+    <string name="editor_color">色</string>
+    <string name="editor_color_mode">カラーモード</string>
+    <string name="editor_color_static">固定</string>
+    <string name="editor_color_toggle">交互</string>
+    <string name="editor_color_gradient">グラデーション</string>
+    <string name="color_a">色 A</string>
+    <string name="color_b">色 B</string>
+    <string name="editor_scroll">スクロール</string>
+    <string name="countdown_sec">%d秒</string>
+    <string name="editor_scroll_speed">速度</string>
+    <string name="editor_continuous">連続</string>
+    <string name="editor_mirror">ミラー</string>
+    <string name="editor_blink">点滅</string>
+    <string name="editor_frequency">頻度</string>
+    <string name="editor_select_image">画像を選択</string>
+    <string name="editor_replace_image">画像を変更</string>
+    <string name="editor_select_video">動画を選択</string>
+    <string name="editor_replace_video">動画を変更</string>
+    <string name="editor_missing_image">⚠ 画像が必要</string>
+    <string name="editor_missing_video">⚠ 動画が必要</string>
+    <string name="editor_video_duration">動画の長さ</string>
+    <string name="editor_video_unknown">不明</string>
+    <string name="editor_bg_color">背景色</string>
+    <string name="editor_bg_color_mode">背景色モード</string>
+    <string name="editor_bg_color_a">背景色 A</string>
+    <string name="editor_bg_color_b">背景色 B</string>
+    <string name="editor_dot_mask">ドットマスク</string>
+    <string name="editor_mask_style">マスクスタイル</string>
+    <string name="editor_mask_round">丸型</string>
+    <string name="editor_mask_square">四角型</string>
+    <string name="editor_mask_heart">ハート型</string>
+    <string name="editor_dot_size">ドットサイズ</string>
+    <string name="editor_start_color">開始色</string>
+    <string name="editor_end_color">終了色</string>
+
+    <!-- Transition Types -->
+    <string name="transition_none">なし</string>
+    <string name="transition_fade_in">フェードイン</string>
+    <string name="transition_slide_left">左からスライド</string>
+    <string name="transition_slide_right">右からスライド</string>
+    <string name="transition_slide_top">上からスライド</string>
+    <string name="transition_slide_bottom">下からスライド</string>
+
+    <!-- Scroll Directions -->
+    <string name="scroll_ltr">左 → 右</string>
+    <string name="scroll_rtl">右 → 左</string>
+    <string name="scroll_ttb">上 → 下</string>
+    <string name="scroll_btt">下 → 上</string>
+
+    <!-- Color Picker -->
+    <string name="invalid_hex">無効</string>
+    <string name="color_picker_title">色を選択</string>
+
+    <!-- Fullscreen -->
+    <string name="fullscreen_loading">読み込み中…</string>
+    <string name="fullscreen_lock">ロック</string>
+    <string name="fullscreen_double_tap_hint">ダブルクリックでロック解除</string>
+    <string name="fullscreen_unlock_toast">ロックアイコンをダブルタップで終了</string>
+    <string name="fullscreen_video_missing">動画が必要</string>
+
+    <!-- Settings -->
+    <string name="settings_title">設定</string>
+    <string name="settings_back">戻る</string>
+    <string name="settings_language">言語</string>
+    <string name="settings_lang_system">システムに従う</string>
+    <string name="settings_lang_zh">中文</string>
+    <string name="settings_lang_en">English</string>
+    <string name="settings_lang_ko">한국어</string>
+    <string name="settings_lang_ja">日本語</string>
+    <string name="settings_lang_pt">Português</string>
+    <string name="settings_lang_es">Español</string>
+    <string name="settings_theme">テーマ</string>
+    <string name="settings_theme_system">システムに従う</string>
+    <string name="settings_theme_light">ライトモード</string>
+    <string name="settings_theme_dark">ダークモード</string>
+    <string name="settings_cache">キャッシュ</string>
+    <string name="settings_cache_unused">未使用キャッシュ</string>
+    <string name="settings_cache_clear">キャッシュ削除</string>
+    <string name="settings_review">評価</string>
+    <string name="settings_review_desc">Google PlayでPandaLEDを評価する</string>
+    <string name="settings_share">アプリを共有</string>
+    <string name="settings_share_desc">PandaLEDを友達に共有する</string>
+    <string name="settings_privacy">プライバシーポリシー</string>
+    <string name="settings_contact">お問い合わせ</string>
+    <string name="settings_cache_calculating">計算中…</string>
+    <string name="settings_version">アプリバージョン</string>
+
+    <string name="missing_image">素材が不足</string>
+    <string name="start_directly">広告視聴後に再生</string>
+    <string name="loading_ads">広告読み込み中…</string>
+    <string name="network_error">ネットワークを確認してください</string>
+    <string name="ad_countdown">%d秒待機</string>
+    <string name="ad_network_unstable">ネットワークが不安定です。戻って再試行してください</string>
+    <string name="ad_go_back">戻る</string>
+    <string name="toast_missing">すべての内容を入力してください</string>
+    <string name="missing_assets">不足 — %s</string>
+
+    <!-- Subscribe -->
+    <string name="subscribe_title">スターライトメンバーシップ</string>
+    <string name="subscribe_price_loading">価格を取得中…</string>
+    <string name="subscribe_benefit_adfree">広告なし</string>
+    <string name="subscribe_benefit_adfree_desc">インタースティシャル広告なしでクリーンな体験を</string>
+    <string name="subscribe_benefit_full">🚀 全機能アクセス</string>
+    <string name="subscribe_benefit_full_desc">シーン編集、全画面再生など全機能を無制限に使用</string>
+    <string name="subscribe_benefit_cancel">いつでもキャンセル可能</string>
+    <string name="subscribe_benefit_cancel_desc">月額サブスクリプションです。いつでもキャンセルできます。</string>
+    <string name="subscribe_cta">購読する</string>
+    <string name="subscribe_restore_hint">購入済みの場合はタップして復元</string>
+    <string name="subscribe_price_format">月額%1$s</string>
+    <string name="subscribe_or">または</string>
+    <string name="subscribe_error_unavailable">一時的に購入できません。後でもう一度お試しください。</string>
+    <string name="subscribe_error_user_canceled">支払いがキャンセルされました (USER_CANCELED)</string>
+    <string name="subscribe_error_service_unavailable">サービスが利用できません (SERVICE_UNAVAILABLE)</string>
+    <string name="subscribe_error_billing_unavailable">課金が利用できません (BILLING_UNAVAILABLE)</string>
+    <string name="subscribe_error_item_unavailable">商品が利用できません (ITEM_UNAVAILABLE)</string>
+    <string name="subscribe_error_developer_error">購入できません (DEVELOPER_ERROR)</string>
+    <string name="subscribe_error_general">購入できません (ERROR)</string>
+    <string name="subscribe_error_restore_not_owned">購読が見つかりません (ITEM_NOT_OWNED)</string>
+    <string name="subscribe_contact">ご質問はDiscordまでお問い合わせください！</string>
+</resources>

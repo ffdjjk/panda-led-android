@@ -40,7 +40,15 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             val prefs = app.getSharedPreferences("pandaled_prefs", android.content.Context.MODE_PRIVATE)
             val lang = prefs.getString("language", "") ?: ""
             val resolved = lang.ifEmpty {
-                if (java.util.Locale.getDefault().language.startsWith("zh")) "zh" else "en"
+                val sys = java.util.Locale.getDefault()
+                when {
+                    sys.language.startsWith("zh") -> "zh"
+                    sys.language.startsWith("ko") -> "ko"
+                    sys.language.startsWith("ja") -> "ja"
+                    sys.language.startsWith("pt") -> "pt"
+                    sys.language.startsWith("es") -> "es"
+                    else -> "en"
+                }
             }
             val assetName = "templates/$resolved/example_project.json"
             val waitingAsset = "templates/$resolved/scene_waiting_default.json"
