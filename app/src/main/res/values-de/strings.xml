@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PandaLED</string>
+    <string name="untitled_project">Unbenanntes Projekt</string>
+    <string name="app_subtitle">Erleuchte dein Herz, zeig es der Welt.</string>
+
+    <!-- Home -->
+    <string name="home_no_projects">Keine Projekte</string>
+    <string name="home_scan_hint">Tippe auf + zum Erstellen</string>
+    <string name="home_new_project">Neu</string>
+    <string name="creating_project">Projekt wird erstellt…</string>
+    <string name="home_settings">Einstellungen</string>
+    <string name="home_theme_switch_light">Zum hellen Modus wechseln</string>
+    <string name="home_theme_switch_dark">Zum dunklen Modus wechseln</string>
+    <string name="home_delete_title">Löschen bestätigen</string>
+    <string name="home_delete_confirm">\"%1$s\" löschen?</string>
+    <string name="home_delete">Löschen</string>
+    <string name="home_cancel">Abbrechen</string>
+    <string name="home_confirm">OK</string>
+    <!-- Detail -->
+    <string name="detail_tab_info">Info</string>
+    <string name="detail_tab_scenes">Szenen</string>
+    <string name="detail_tab_editor">Editor</string>
+    <string name="detail_project_name">Projektname</string>
+    <string name="detail_start_time">Startzeit</string>
+    <string name="pick_time">Zeit wählen</string>
+    <string name="detail_save">Speichern</string>
+    <string name="detail_fullscreen">Vollbild</string>
+    <string name="detail_missing_assets">Medium/Medien fehlt/fehlen</string>
+
+    <!-- Scene List -->
+    <string name="scene_waiting">Warteszene</string>
+    <string name="scene_add">Szene hinzufügen</string>
+    <string name="scene_text">Textszene</string>
+    <string name="scene_image">Bildszene</string>
+    <string name="scene_video">Videoszene</string>
+    <string name="scene_move_up">Nach oben</string>
+    <string name="scene_move_down">Nach unten</string>
+    <string name="scene_delete">Löschen</string>
+
+    <!-- Scene Type Labels (used in ViewModel for auto-naming) -->
+    <string name="scene_type_text">Text</string>
+    <string name="scene_type_image">Bild</string>
+    <string name="scene_type_video">Video</string>
+
+    <!-- Idle Scene Types -->
+    <string name="idle_none">Schwarz</string>
+    <string name="idle_clock">Uhr</string>
+    <string name="idle_countdown">Countdown</string>
+    <string name="idle_image">Bild</string>
+    <string name="idle_waiting_hint">Diese Szene wird vor Projektbeginn angezeigt.</string>
+    <string name="idle_view_start_time">Startzeit ansehen</string>
+    <string name="idle_black_hint">Schwarzer Bildschirm — keine Konfiguration</string>
+
+    <!-- Scene Editor -->
+    <string name="editor_select_scene">Wähle eine Szene aus der Liste</string>
+    <string name="editor_scene_not_found">Szene nicht gefunden</string>
+    <string name="editor_basic">Grundlegend</string>
+    <string name="editor_content">Inhalt</string>
+    <string name="editor_transition">Übergang</string>
+    <string name="editor_appearance">Erscheinung</string>
+    <string name="editor_scene_name">Szenenname</string>
+    <string name="editor_duration">Dauer (s)</string>
+    <string name="duration_unit">s</string>
+    <string name="editor_play_mode">Wiedergabemodus</string>
+    <string name="editor_show_mode">Anzeigemodus</string>
+    <string name="editor_loop">Schleife</string>
+    <string name="editor_once">Einmal</string>
+    <string name="editor_enter_anim">Eingangsanimation</string>
+    <string name="editor_anim_duration">Animationsdauer (s)</string>
+    <string name="editor_format">Format</string>
+    <string name="editor_text_content">Textinhalt</string>
+    <string name="editor_font_size">Schriftgröße</string>
+    <string name="editor_font">Schriftart</string>
+    <string name="font_preview">Abc</string>
+    <string name="font_default">Standard</string>
+    <string name="font_bold">Fett</string>
+    <string name="font_light">Leicht</string>
+    <string name="font_condensed">Schmal</string>
+    <string name="font_serif">Serife</string>
+    <string name="font_mono">Monospace</string>
+    <string name="font_casual">Leger</string>
+    <string name="font_cursive">Kursiv</string>
+    <string name="font_noto_sans">Noto Sans</string>
+    <string name="font_noto_serif">Noto Serif</string>
+    <string name="font_noto_sans_bold">Noto Bold</string>
+    <string name="font_noto_sans_light">Noto Light</string>
+    <string name="font_chinese_simple">Vereinfacht</string>
+    <string name="font_chinese_classical">Klassisch</string>
+    <string name="font_zcool">ZCOOL Butter</string>
+    <string name="font_mashan">Ma Shan</string>
+    <string name="editor_color">Farbe</string>
+    <string name="editor_color_mode">Farbmodus</string>
+    <string name="editor_color_static">Statisch</string>
+    <string name="editor_color_toggle">Wechselnd</string>
+    <string name="editor_color_gradient">Verlauf</string>
+    <string name="color_a">Farbe A</string>
+    <string name="color_b">Farbe B</string>
+    <string name="editor_scroll">Scrollen</string>
+    <string name="countdown_sec">%ds</string>
+    <string name="editor_scroll_speed">Geschwindigkeit</string>
+    <string name="editor_continuous">Fortlaufend</string>
+    <string name="editor_mirror">Spiegel</string>
+    <string name="editor_blink">Blinken</string>
+    <string name="editor_frequency">Frequenz</string>
+    <string name="editor_select_image">Bild auswählen</string>
+    <string name="editor_replace_image">Bild ersetzen</string>
+    <string name="editor_select_video">Video auswählen</string>
+    <string name="editor_replace_video">Video ersetzen</string>
+    <string name="editor_missing_image">⚠ Bild erforderlich</string>
+    <string name="editor_missing_video">⚠ Video erforderlich</string>
+    <string name="editor_video_duration">Videodauer</string>
+    <string name="editor_video_unknown">Unbekannt</string>
+    <string name="editor_bg_color">Hintergrund</string>
+    <string name="editor_bg_color_mode">Hintergrundmodus</string>
+    <string name="editor_bg_color_a">Hintergrund A</string>
+    <string name="editor_bg_color_b">Hintergrund B</string>
+    <string name="editor_dot_mask">Punktmaske</string>
+    <string name="editor_mask_style">Maskenstil</string>
+    <string name="editor_mask_round">Rund</string>
+    <string name="editor_mask_square">Quadratisch</string>
+    <string name="editor_mask_heart">Herz</string>
+    <string name="editor_dot_size">Punktgröße</string>
+    <string name="editor_start_color">Startfarbe</string>
+    <string name="editor_end_color">Endfarbe</string>
+
+    <!-- Transition Types -->
+    <string name="transition_none">Keine</string>
+    <string name="transition_fade_in">Einblenden</string>
+    <string name="transition_slide_left">Von links schieben</string>
+    <string name="transition_slide_right">Von rechts schieben</string>
+    <string name="transition_slide_top">Von oben schieben</string>
+    <string name="transition_slide_bottom">Von unten schieben</string>
+
+    <!-- Scroll Directions -->
+    <string name="scroll_ltr">Links → Rechts</string>
+    <string name="scroll_rtl">Rechts → Links</string>
+    <string name="scroll_ttb">Oben → Unten</string>
+    <string name="scroll_btt">Unten → Oben</string>
+
+    <!-- Color Picker -->
+    <string name="invalid_hex">Ungültig</string>
+    <string name="color_picker_title">Farbe wählen</string>
+
+    <!-- Fullscreen -->
+    <string name="fullscreen_loading">Wird geladen…</string>
+    <string name="fullscreen_lock">Sperren</string>
+    <string name="fullscreen_double_tap_hint">Doppelklick zum Entsperren</string>
+    <string name="fullscreen_unlock_toast">Doppeltippen auf das Schloss zum Beenden</string>
+    <string name="fullscreen_video_missing">Video erforderlich</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_back">Zurück</string>
+    <string name="settings_language">Sprache</string>
+    <string name="settings_lang_system">System</string>
+    <string name="settings_lang_zh">中文</string>
+    <string name="settings_lang_en">English</string>
+    <string name="settings_lang_ko">한국어</string>
+    <string name="settings_lang_ja">日本語</string>
+    <string name="settings_lang_pt">Português</string>
+    <string name="settings_lang_es">Español</string>
+    <string name="settings_lang_fr">Français</string>
+    <string name="settings_lang_de">Deutsch</string>
+    <string name="settings_theme">Design</string>
+    <string name="settings_theme_system">System</string>
+    <string name="settings_theme_light">Hell</string>
+    <string name="settings_theme_dark">Dunkel</string>
+    <string name="settings_cache">Cache</string>
+    <string name="settings_cache_unused">Ungenutzter Cache</string>
+    <string name="settings_cache_clear">Leeren</string>
+    <string name="settings_review">Bewerten</string>
+    <string name="settings_review_desc">PandaLED bei Google Play bewerten</string>
+    <string name="settings_share">Teilen</string>
+    <string name="settings_share_desc">PandaLED mit Freunden teilen</string>
+    <string name="settings_privacy">Datenschutzerklärung</string>
+    <string name="settings_contact">Kontakt</string>
+    <string name="settings_cache_calculating">Wird berechnet…</string>
+    <string name="settings_version">App-Version</string>
+
+    <string name="missing_image">Medium fehlt</string>
+    <string name="start_directly">Werbung ansehen zum Abspielen</string>
+    <string name="loading_ads">Werbung wird geladen…</string>
+    <string name="network_error">Bitte überprüfe deine Verbindung</string>
+    <string name="ad_countdown">Warte %ds</string>
+    <string name="ad_network_unstable">Netzwerk instabil, bitte zurückgehen und erneut versuchen</string>
+    <string name="ad_go_back">Zurück</string>
+    <string name="toast_missing">Bitte vervollständige alle Inhalte</string>
+    <string name="missing_assets">Fehlt — %s</string>
+
+    <!-- Subscribe -->
+    <string name="subscribe_title">Starlight Premium</string>
+    <string name="subscribe_price_loading">Preis wird geladen…</string>
+    <string name="subscribe_benefit_adfree">Keine Werbung</string>
+    <string name="subscribe_benefit_adfree_desc">Genieße ein sauberes Erlebnis ohne Zwischenwerbung</string>
+    <string name="subscribe_benefit_full">🚀 Voller Zugriff</string>
+    <string name="subscribe_benefit_full_desc">Unbegrenzter Zugriff auf Szenenbearbeitung, Vollbild und alle Funktionen</string>
+    <string name="subscribe_benefit_cancel">Jederzeit kündbar</string>
+    <string name="subscribe_benefit_cancel_desc">Monatsabo. Du kannst jederzeit kündigen.</string>
+    <string name="subscribe_cta">Abonnieren</string>
+    <string name="subscribe_restore_hint">Bereits gekauft? Tippe zum Wiederherstellen</string>
+    <string name="subscribe_price_format">%1$s/Monat</string>
+    <string name="subscribe_or">oder</string>
+    <string name="subscribe_error_unavailable">Kauf vorübergehend nicht möglich. Bitte später erneut versuchen.</string>
+    <string name="subscribe_error_user_canceled">Zahlung abgebrochen (USER_CANCELED)</string>
+    <string name="subscribe_error_service_unavailable">Dienst nicht verfügbar (SERVICE_UNAVAILABLE)</string>
+    <string name="subscribe_error_billing_unavailable">Abrechnung nicht verfügbar (BILLING_UNAVAILABLE)</string>
+    <string name="subscribe_error_item_unavailable">Artikel nicht verfügbar (ITEM_UNAVAILABLE)</string>
+    <string name="subscribe_error_developer_error">Kauf fehlgeschlagen (DEVELOPER_ERROR)</string>
+    <string name="subscribe_error_general">Kauf fehlgeschlagen (ERROR)</string>
+    <string name="subscribe_error_restore_not_owned">Kein Abo gefunden (ITEM_NOT_OWNED)</string>
+    <string name="subscribe_contact">Fragen? Kontaktiere uns auf Discord!</string>
+</resources>

@@ -33,6 +33,8 @@ class PandaLedApp : Application() {
             language == "ja" -> Locale("ja")
             language == "pt" -> Locale("pt")
             language == "es" -> Locale("es")
+            language == "fr" -> Locale("fr")
+            language == "de" -> Locale("de")
             else -> {
                 val sys = Locale.getDefault()
                 when {
@@ -41,6 +43,8 @@ class PandaLedApp : Application() {
                     sys.language.startsWith("ja") -> Locale("ja")
                     sys.language.startsWith("pt") -> Locale("pt")
                     sys.language.startsWith("es") -> Locale("es")
+                    sys.language.startsWith("fr") -> Locale("fr")
+                    sys.language.startsWith("de") -> Locale("de")
                     else -> Locale("en")
                 }
             }

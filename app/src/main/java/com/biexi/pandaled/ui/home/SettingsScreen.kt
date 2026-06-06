@@ -43,6 +43,8 @@ fun SettingsScreen(onBack: () -> Unit) {
             sys.language.startsWith("ja") -> "ja"
             sys.language.startsWith("pt") -> "pt"
             sys.language.startsWith("es") -> "es"
+            sys.language.startsWith("fr") -> "fr"
+            sys.language.startsWith("de") -> "de"
             else -> "en"
         }
     }
@@ -57,7 +59,9 @@ fun SettingsScreen(onBack: () -> Unit) {
         "ko" to stringResource(R.string.settings_lang_ko),
         "ja" to stringResource(R.string.settings_lang_ja),
         "pt" to stringResource(R.string.settings_lang_pt),
-        "es" to stringResource(R.string.settings_lang_es)
+        "es" to stringResource(R.string.settings_lang_es),
+        "fr" to stringResource(R.string.settings_lang_fr),
+        "de" to stringResource(R.string.settings_lang_de)
     )
     val colorModeOptions = mapOf(
         "system" to stringResource(R.string.settings_theme_system),
@@ -116,6 +120,8 @@ fun SettingsScreen(onBack: () -> Unit) {
                                     "ja" -> java.util.Locale("ja")
                                     "pt" -> java.util.Locale("pt")
                                     "es" -> java.util.Locale("es")
+                                    "fr" -> java.util.Locale("fr")
+                                    "de" -> java.util.Locale("de")
                                     else -> java.util.Locale("en")
                                 }
                                 AppCompatDelegate.setApplicationLocales(LocaleListCompat.create(locale))
@@ -249,6 +255,8 @@ fun SettingsScreen(onBack: () -> Unit) {
                             "ja" -> "ja"
                             "pt" -> "pt"
                             "es" -> "es"
+                            "fr" -> "fr"
+                            "de" -> "de"
                             else -> "en"
                         }
                         val url = "https://pandaled.biexi.com/#/privacy-policy/$langSegment"

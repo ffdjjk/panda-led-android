@@ -47,6 +47,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                     sys.language.startsWith("ja") -> "ja"
                     sys.language.startsWith("pt") -> "pt"
                     sys.language.startsWith("es") -> "es"
+                    sys.language.startsWith("fr") -> "fr"
+                    sys.language.startsWith("de") -> "de"
                     else -> "en"
                 }
             }

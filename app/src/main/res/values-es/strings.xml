@@ -160,6 +160,8 @@
     <string name="settings_lang_ja">日本語</string>
     <string name="settings_lang_pt">Português</string>
     <string name="settings_lang_es">Español</string>
+    <string name="settings_lang_fr">Français</string>
+    <string name="settings_lang_de">Deutsch</string>
     <string name="settings_theme">Tema</string>
     <string name="settings_theme_system">Sistema</string>
     <string name="settings_theme_light">Claro</string>

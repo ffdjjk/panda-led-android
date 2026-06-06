@@ -14,8 +14,14 @@ android {
         applicationId = "com.biexi.pandaled"
         minSdk = 28
         targetSdk = 36
-        versionCode = 16
-        versionName = "1.0.0"
+        versionCode = 19
+        versionName = "1.0.3"
+    }
+
+    bundle {
+        language {
+            enableSplit = false
+        }
     }
 
     buildTypes {
