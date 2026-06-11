@@ -129,6 +129,7 @@ fun SubscribeScreen(
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Spacer(Modifier.height(15.dp))
 
                         // ─── Logo (Animated GIF) ────────────
             AsyncImage(

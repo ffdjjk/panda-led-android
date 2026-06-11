@@ -3,8 +3,12 @@ package com.biexi.pandaled.ui.detail
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import android.content.pm.ActivityInfo
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import com.biexi.pandaled.R
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
@@ -54,12 +58,24 @@ fun DetailScreen(
         // Debounced auto-save could go here; for now manual save
     }
 
-    // Kill pending ad + restore window colors when user navigates away
-    DisposableEffect(Unit) {
+    // Lock to portrait only when this screen is visible; unlock when another
+    // screen (e.g. Subscribe) is pushed on top or when navigating away.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
         val act = context as android.app.Activity
         val originalNavColor = act.window.navigationBarColor
         val originalStatusColor = act.window.statusBarColor
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> act.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                Lifecycle.Event.ON_PAUSE -> act.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            act.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
             com.biexi.pandaled.util.AdManager.cancelCurrentAd()
             act.window.navigationBarColor = originalNavColor
             act.window.statusBarColor = originalStatusColor

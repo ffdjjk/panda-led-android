@@ -1,5 +1,6 @@
 package com.biexi.pandaled.ui.player
 
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.OrientationEventListener
 import android.view.View
@@ -44,6 +45,8 @@ class FullScreenActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 
         hideSystemUi()
 

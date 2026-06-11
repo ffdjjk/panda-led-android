@@ -19,7 +19,6 @@
             android:name=".MainActivity"
             android:exported="true"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
-            android:screenOrientation="portrait"
             android:theme="@style/Theme.PandaLed">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,7 +29,6 @@
         <activity
             android:name=".ui.player.FullScreenActivity"
             android:exported="false"
-            android:screenOrientation="landscape"
             android:theme="@style/Theme.PandaLed.FullScreen" />
 
         <provider
