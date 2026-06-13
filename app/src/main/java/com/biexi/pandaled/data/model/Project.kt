@@ -54,7 +54,7 @@ enum class OverlayType {
 data class ContentStyle(
     val format: String? = null,        // clock / countdown format
     val fontFamily: String? = "sans-serif",
-    val size: Int = 40,
+    val size: Int = 70,
     val color: String? = "#FFFFFF"     // simple hex for idle style
 )
 
@@ -83,7 +83,7 @@ data class Motion(
 
 data class ScrollConfig(
     val direction: ScrollDirection = ScrollDirection.RIGHT_TO_LEFT,
-    val speed: Int = 5,
+    val speed: Int = 1,
     val continuous: Boolean = false
 )
 
@@ -149,7 +149,7 @@ data class IdleSceneContent(
 data class Scene(
     val name: String = "",
     val type: SceneType = SceneType.TEXT,
-    val duration: Int = 5,             // seconds
+    val duration: Int = 20,             // seconds
     val playMode: PlayMode = PlayMode.LOOP,
     val content: SceneContent = SceneContent(),
     val transition: Transition = Transition(),

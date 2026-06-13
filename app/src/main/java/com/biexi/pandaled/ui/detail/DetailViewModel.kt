@@ -315,7 +315,9 @@ class DetailViewModel : ViewModel() {
         _uiState.value = _uiState.value.copy(
             project = project,
             missingAssets = project?.findMissingAssets() ?: emptyList(),
-            previewTotalCount = (project?.scenes?.size ?: 0) + 1
+            previewTotalCount = (project?.scenes?.size ?: 0) + 1,
+            isPreviewPlaying = true,
+            previewReplayKey = _uiState.value.previewReplayKey + 1
         )
     }
 

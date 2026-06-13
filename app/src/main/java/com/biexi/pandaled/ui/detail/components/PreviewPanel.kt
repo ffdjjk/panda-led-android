@@ -299,8 +299,8 @@ fun CountdownRenderer(format: String, startTime: String, fontKey: String? = null
 fun SceneRenderer(scene: Scene, isPreview: Boolean = false, replayKey: Int = 0) {
     when (scene.type) {
         SceneType.TEXT -> TextSceneRenderer(scene, isPreview, replayKey)
-        SceneType.IMAGE -> ImageSceneRenderer(scene)
-        SceneType.VIDEO -> VideoSceneRenderer(scene)
+        SceneType.IMAGE -> ImageSceneRenderer(scene, replayKey)
+        SceneType.VIDEO -> VideoSceneRenderer(scene, replayKey)
     }
 }
 
@@ -409,8 +409,8 @@ fun TextSceneRenderer(scene: Scene, isPreview: Boolean = false, replayKey: Int =
             if (intervalMs <= 0L) {
                 parseColor(bgColorConfig.from)
             } else {
-                var showFrom by remember { mutableStateOf(true) }
-                LaunchedEffect(bgColorConfig.frequency ?: 5) {
+                var showFrom by remember(replayKey) { mutableStateOf(true) }
+                LaunchedEffect(bgColorConfig.frequency ?: 5, replayKey) {
                     while (true) {
                         delay(intervalMs)
                         showFrom = !showFrom
@@ -422,8 +422,8 @@ fun TextSceneRenderer(scene: Scene, isPreview: Boolean = false, replayKey: Int =
         }
         ColorType.GRADIENT -> {
             val durMs = (bgColorConfig.duration ?: 3000).coerceAtLeast(100)
-            var gradient by remember { mutableStateOf(0f) }
-            LaunchedEffect(durMs) {
+            var gradient by remember(replayKey) { mutableStateOf(0f) }
+            LaunchedEffect(durMs, replayKey) {
                 val step = 16L
                 val totalSteps = (durMs / step).coerceAtLeast(1).toInt()
                 var stepCount = 0
@@ -525,7 +525,7 @@ fun TextSceneRenderer(scene: Scene, isPreview: Boolean = false, replayKey: Int =
 }
 
 @Composable
-fun ImageSceneRenderer(scene: Scene) {
+fun ImageSceneRenderer(scene: Scene, replayKey: Int = 0) {
     val source = scene.content.source
     val mirror = scene.content.transform?.mirror ?: false
     val blinkAnim = scene.content.animation?.blink
@@ -535,8 +535,8 @@ fun ImageSceneRenderer(scene: Scene) {
         if (intervalMs <= 0L) {
             1f
         } else {
-            var showFrom by remember { mutableStateOf(true) }
-            LaunchedEffect(blinkAnim.frequency) {
+            var showFrom by remember(replayKey) { mutableStateOf(true) }
+            LaunchedEffect(blinkAnim.frequency, replayKey) {
                 while (true) {
                     delay(intervalMs)
                     showFrom = !showFrom
@@ -584,7 +584,7 @@ fun ImageSceneRenderer(scene: Scene) {
 }
 
 @Composable
-fun VideoSceneRenderer(scene: Scene) {
+fun VideoSceneRenderer(scene: Scene, replayKey: Int = 0) {
     val source = scene.content.source
     val mirror = scene.content.transform?.mirror ?: false
     val blinkAnim = scene.content.animation?.blink
@@ -595,8 +595,8 @@ fun VideoSceneRenderer(scene: Scene) {
         if (intervalMs <= 0L) {
             1f
         } else {
-            var showFrom by remember { mutableStateOf(true) }
-            LaunchedEffect(blinkAnim.frequency) {
+            var showFrom by remember(replayKey) { mutableStateOf(true) }
+            LaunchedEffect(blinkAnim.frequency, replayKey) {
                 while (true) {
                     delay(intervalMs)
                     showFrom = !showFrom
@@ -615,8 +615,8 @@ fun VideoSceneRenderer(scene: Scene) {
             if (intervalMs <= 0L) {
                 parseColor(bgCfg.from)
             } else {
-                var showFrom by remember { mutableStateOf(true) }
-                LaunchedEffect(bgCfg.frequency ?: 5) {
+                var showFrom by remember(replayKey) { mutableStateOf(true) }
+                LaunchedEffect(bgCfg.frequency ?: 5, replayKey) {
                     while (true) {
                         delay(intervalMs)
                         showFrom = !showFrom
@@ -627,8 +627,8 @@ fun VideoSceneRenderer(scene: Scene) {
         }
         ColorType.GRADIENT -> {
             val durMs = (bgCfg.duration ?: 3000).coerceAtLeast(100)
-            var gradient by remember { mutableStateOf(0f) }
-            LaunchedEffect(durMs) {
+            var gradient by remember(replayKey) { mutableStateOf(0f) }
+            LaunchedEffect(durMs, replayKey) {
                 val step = 16L
                 val totalSteps = (durMs / step).coerceAtLeast(1).toInt()
                 var stepCount = 0

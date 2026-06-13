@@ -8,7 +8,7 @@
       "style": {
         "format": "{hours}:{minutes}:{seconds}",
         "fontFamily": "sans-serif",
-        "size": 40,
+        "size": 70,
         "color": "#FFFFFF"
       }
     }
@@ -17,12 +17,12 @@
     {
       "name": "Cena de boas-vindas",
       "type": "text",
-      "duration": 5,
+      "duration": 20,
       "playMode": "loop",
       "content": {
         "source": "Bem-vindo ao PandaLED\uD83D\uDC97!",
         "style": {
-          "size": 40,
+          "size": 70,
           "fontFamily": "sans-serif"
         },
         "color": {
@@ -35,7 +35,7 @@
         "motion": {
           "scroll": {
             "direction": "rightToLeft",
-            "speed": 5
+            "speed": 1
           }
         },
         "animation": {
